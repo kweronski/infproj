@@ -6,10 +6,12 @@ find_package(PugiXML REQUIRED)
 set(CMAKE_INSTALL_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 
-add_executable(run main.cpp)
+add_executable(run main.cpp
+	node.cpp
+)
 
 set_target_properties(run PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+	RUNTIME_OUTPUT_DIRECTORY ${exedir}
 )
 
 target_link_libraries(run PRIVATE

@@ -3,3 +3,4 @@ build/
 *.a
 *.lib
 compile_commands.json
+*.swp
