@@ -1,3 +1,5 @@
+add_compile_options(-Wall -Wextra -Wpedantic)
+
 # Find the required dependencies
 find_package(SFML COMPONENTS system graphics network audio window REQUIRED)
 find_package(PugiXML REQUIRED)
@@ -6,15 +8,11 @@ find_package(PugiXML REQUIRED)
 set(CMAKE_INSTALL_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 
-add_executable(run main.cpp
+add_library(framework
 	node.cpp
 )
 
-set_target_properties(run PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY ${exedir}
-)
-
-target_link_libraries(run PRIVATE
+target_link_libraries(framework PUBLIC
 	-lsfml-system
 	-lsfml-window
 	-lsfml-graphics
@@ -22,3 +20,16 @@ target_link_libraries(run PRIVATE
 	-lsfml-audio
 	-lpugixml
 )
+
+add_executable(run main.cpp
+)
+
+set_target_properties(run PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY ${exedir}
+)
+
+target_link_libraries(run PRIVATE
+	framework
+)
+
+add_subdirectory(demo)

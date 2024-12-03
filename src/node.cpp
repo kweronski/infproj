@@ -4,22 +4,22 @@ namespace fw {
 void node_t::draw(sf::RenderTarget &t, sf::RenderStates s) const {
   if (!this->visible())
     return;
-  this->drawCurrent(t, s);
+  this->draw_current(t, s);
   for (const auto &c : nodes_)
     c->draw(t, s);
 }
 
-void node_t::drawCurrent(sf::RenderTarget &, sf::RenderStates) const {}
+void node_t::draw_current(sf::RenderTarget &, sf::RenderStates) const {}
 
 void node_t::update(update_data_t *d) {
   if (!this->active())
     return;
-  this->updateCurrent(d);
+  this->update_current(d);
   for (const auto &c : nodes_)
     c->update(d);
 }
 
-void node_t::updateCurrent(update_data_t *) {}
+void node_t::update_current(update_data_t *) {}
 
 void node_t::activate() { this->active_ = true; }
 

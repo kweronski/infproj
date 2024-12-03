@@ -5,7 +5,10 @@
 #include <memory>
 
 namespace fw {
-struct update_data_t {};
+struct update_data_t {
+  sf::RenderWindow *window;
+  sf::Vector2f last_mouse_pos;
+};
 
 class node_t : public sf::Drawable {
 public:
@@ -20,10 +23,10 @@ public:
   ~node_t() = default;
 
   void draw(sf::RenderTarget &, sf::RenderStates) const override final;
-  virtual void drawCurrent(sf::RenderTarget &, sf::RenderStates) const;
+  virtual void draw_current(sf::RenderTarget &, sf::RenderStates) const;
 
   void update(update_data_t *);
-  virtual void updateCurrent(update_data_t *);
+  virtual void update_current(update_data_t *);
   void activate();
   void deactivate();
   bool active() const;

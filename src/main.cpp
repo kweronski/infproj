@@ -8,7 +8,7 @@ struct resource {
   static inline fw::resource_t<sf::Texture> texture;
 };
 
-int main(int argc, char **argv) {
+int main(int, char **argv) {
   std::filesystem::current_path(
       std::filesystem::absolute(std::filesystem::path{argv[0]}.parent_path()));
 
