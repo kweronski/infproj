@@ -9,6 +9,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 
 add_library(framework
+	builder.cpp
 	node.cpp
 )
 

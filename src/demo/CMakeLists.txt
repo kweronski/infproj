@@ -9,3 +9,15 @@ target_link_libraries(demo_button PRIVATE
 set_target_properties(demo_button PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${exedir}
 )
+
+add_executable(demo_builder
+	demo_builder.cpp
+)
+
+target_link_libraries(demo_builder PRIVATE
+	framework
+)
+
+set_target_properties(demo_builder PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY ${exedir}
+)

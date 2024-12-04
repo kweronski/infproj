@@ -1,0 +1,71 @@
+<root>
+	<button type="rectangle">
+		<position x="center" y="95"/>
+		<size w="200" h="100"/>
+		<outline_thickness value="0"/>
+		<outline_color r="0" g="0" b="0"/>
+		<fill_color r="255" g="255" b="255"/>
+
+		<text_outline_thickness value="0"/>
+		<text_outline_color r="0" g="0" b="0"/>
+		<text_fill_color r="0" g="0" b="0"/>
+		<text_character_size value="30"/>
+		<text_string value="Click me!"/>
+		<text_font_id value="AnonymousPro"/>
+
+		<on_hover>
+			<fill_color r="255" g="255" b="0"/>
+			<text_string value="Hovering"/>
+		</on_hover>
+
+		<on_unhover>
+			<fill_color r="255" g="255" b="255"/>
+			<text_string value="Not Hovered"/>
+		</on_unhover>
+
+		<on_click>
+			<fill_color r="255" g="0" b="0"/>
+			<text_string value="Click!"/>
+		</on_click>
+
+		<on_unclick>
+			<fill_color r="255" g="255" b="255"/>
+			<text_string value="Not Clicked"/>
+		</on_unclick>
+	</button>
+
+	<button type="circle">
+		<position x="center" y="205"/>
+		<radius value="100"/>
+		<outline_thickness value="0"/>
+		<outline_color r="0" g="0" b="0"/>
+		<fill_color r="255" g="255" b="255"/>
+
+		<text_outline_thickness value="0"/>
+		<text_outline_color r="0" g="0" b="0"/>
+		<text_fill_color r="0" g="0" b="0"/>
+		<text_character_size value="30"/>
+		<text_string value="Click me!"/>
+		<text_font_id value="AnonymousPro"/>
+
+		<on_hover>
+			<fill_color r="255" g="255" b="0"/>
+			<text_string value="Hovering"/>
+		</on_hover>
+
+		<on_unhover>
+			<fill_color r="255" g="255" b="255"/>
+			<text_string value="Not Hovered"/>
+		</on_unhover>
+
+		<on_click>
+			<fill_color r="255" g="0" b="0"/>
+			<text_string value="Click!"/>
+		</on_click>
+
+		<on_unclick>
+			<fill_color r="255" g="255" b="255"/>
+			<text_string value="Not Clicked"/>
+		</on_unclick>
+	</button>
+</root>
