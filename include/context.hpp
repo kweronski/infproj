@@ -28,6 +28,6 @@ struct context_t {
 void cd_to_binary_dir(context_t *, const std::string &);
 void update(context_t *);
 void render(context_t *);
-void activate_scene(context_t *, const std::string &);
+bool activate_scene(context_t *, const std::string &);
 bool load_scene(context_t *, const std::string &xml, const std::string id);
 } // namespace fw

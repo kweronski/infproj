@@ -47,4 +47,17 @@ private:
   bool visible_{true};
   node_t *parent_{nullptr};
 };
+
+template <typename T> class basic_node_t : public node_t {
+public:
+  void draw_current(sf::RenderTarget &r, sf::RenderStates s) const override {
+    r.draw(shape_, s);
+  }
+
+  const T *shape() const { return &shape_; }
+  T *shape() { return &shape_; }
+
+private:
+  T shape_;
+};
 } // namespace fw

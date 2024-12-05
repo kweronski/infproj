@@ -17,7 +17,7 @@ int main(int, char **argv) {
     return -1;
   }
 
-  auto scene = fw::build_scene(ctx, "./xml/demo_button.xml");
+  auto scene = fw::build_scene(&ctx, "./xml/demo_button.xml");
 
   fw::update_data_t data{};
   data.window = &ctx.window;
