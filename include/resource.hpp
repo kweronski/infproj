@@ -17,18 +17,14 @@ public:
   T &get(const std::string &id) { return container_.at(id); }
   const T &get(const std::string &id) const { return container_.at(id); }
 
-  void unload(const std::string &id) { container_.erase(id); }
+  bool unload(const std::string &id) {
+    if (!container_.contains(id))
+      return false;
+    container_.erase(id);
+    return true;
+  }
 
 private:
   std::unordered_map<std::string, T> container_;
-};
-} // namespace fw
-
-namespace fw {
-struct context_t {
-  resource_t<sf::Font> texture;
-  resource_t<sf::Font> font;
-
-  sf::RenderWindow *window;
 };
 } // namespace fw

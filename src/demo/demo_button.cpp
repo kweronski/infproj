@@ -30,23 +30,23 @@ int main(int, char **argv) {
   l->setFont(font.get("AnonymousPro"));
   l->setFillColor(sf::Color::Black);
 
-  btn->on_hover([=](btype *ptr) {
+  btn->add_hover_cb([=](btype *ptr) {
     ptr->shape()->setFillColor(sf::Color::Yellow);
     ptr->label()->setString("Hover");
     ptr->center();
   });
-  btn->on_unhover([=](btype *ptr) {
+  btn->add_unhover_cb([=](btype *ptr) {
     ptr->shape()->setFillColor(orig);
     ptr->label()->setString("Unhover");
     ptr->center();
   });
 
-  btn->on_click([=](btype *ptr) {
+  btn->add_click_cb([=](btype *ptr) {
     ptr->shape()->setFillColor(sf::Color::Red);
     ptr->label()->setString("Click");
     ptr->center();
   });
-  btn->on_unclick([=](btype *ptr) {
+  btn->add_unclick_cb([=](btype *ptr) {
     ptr->shape()->setFillColor(orig);
     ptr->label()->setString("Unclick");
     ptr->center();

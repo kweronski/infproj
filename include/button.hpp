@@ -7,6 +7,7 @@ namespace fw {
 template <typename S> class button_t : public node_t {
 public:
   using cb_t = std::function<void(button_t *)>;
+  using cb_container_t = std::list<std::pair<std::size_t, cb_t>>;
 
 public:
   void draw_current(sf::RenderTarget &t, sf::RenderStates s) const override {
@@ -47,28 +48,85 @@ public:
     }
   }
 
-  void on_click(cb_t f) { click_cb_ = f; }
-  void on_hover(cb_t f) { hover_cb_ = f; }
+private:
+  bool remove_cb(unsigned id, std::string type) {
+    cb_container_t *con{};
+    if (type == "click")
+      con = &click_cb_;
+    else if (type == "unclick")
+      con = &unclick_cb_;
+    else if (type == "hover")
+      con = &hover_cb_;
+    else if (type == "unhover")
+      con = &unhover_cb_;
+    else
+      return false;
 
-  void on_unclick(cb_t f) { unclick_cb_ = f; }
-  void on_unhover(cb_t f) { unhover_cb_ = f; }
+    auto it = con->begin();
+    for (; it != con->end(); ++it)
+      if (it->first == id)
+        break;
+    if (it != con->end()) {
+      con->erase(it);
+      return true;
+    }
+    return false;
+  }
+
+public:
+  unsigned add_click_cb(cb_t f) {
+    click_cb_.push_back({++cb_id_, f});
+    return cb_id_;
+  }
+
+  unsigned add_hover_cb(cb_t f) {
+    hover_cb_.push_back({++cb_id_, f});
+    return cb_id_;
+  }
+
+  unsigned add_unclick_cb(cb_t f) {
+    unclick_cb_.push_back({++cb_id_, f});
+    return cb_id_;
+  }
+
+  unsigned add_unhover_cb(cb_t f) {
+    unhover_cb_.push_back({++cb_id_, f});
+    return cb_id_;
+  }
+
+  bool remove_click_cb(unsigned id) { return remove_cb(id, "click"); }
+  bool remove_hover_cb(unsigned id) { return remove_cb(id, "hover"); }
+  bool remove_unclick_cb(unsigned id) { return remove_cb(id, "unclick"); }
+  bool remove_unhover_cb(unsigned id) { return remove_cb(id, "unhover"); }
+
+  void clear_cb() {
+    click_cb_.clear();
+    hover_cb_.clear();
+    unclick_cb_.clear();
+    unhover_cb_.clear();
+    cb_id_ = 0;
+  }
 
   void on_click() {
-    if (click_cb_)
-      click_cb_(this);
+    for (const auto &f : click_cb_)
+      if (f.second)
+        f.second(this);
   }
   void on_hover() {
-    if (hover_cb_)
-      hover_cb_(this);
+    for (const auto &f : hover_cb_)
+      if (f.second)
+        f.second(this);
   }
 
   void on_unclick() {
-    if (unclick_cb_)
-      unclick_cb_(this);
+    for (const auto &f : unclick_cb_)
+      if (f.second)
+        f.second(this);
   }
   void on_unhover() {
-    if (unhover_cb_)
-      unhover_cb_(this);
+    for (const auto &f : unhover_cb_)
+      if (f.second)
+        f.second(this);
   }
 
   bool hovered() const { return hovered_; }
@@ -99,13 +157,15 @@ private:
   bool hovered_{false};
   bool clicked_{false};
 
-  cb_t unhover_cb_{};
-  cb_t unclick_cb_{};
+  cb_container_t unhover_cb_{};
+  cb_container_t unclick_cb_{};
 
-  cb_t hover_cb_{};
-  cb_t click_cb_{};
+  cb_container_t hover_cb_{};
+  cb_container_t click_cb_{};
 
   sf::Text label_{};
   S shape_{};
+
+  std::size_t cb_id_{};
 };
 } // namespace fw

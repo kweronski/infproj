@@ -39,14 +39,14 @@ button_data_t collect_button_data(const pugi::xml_node &n,
       float w = d.size.has_value()     ? d.size.value().x / 2.f
                 : d.radius.has_value() ? d.radius.value()
                                        : 0;
-      d.position.value().x = ctx.window->getSize().x / 2.f - w;
+      d.position.value().x = ctx.window.getSize().x / 2.f - w;
     } else
       d.position.value().x = tag.attribute("x").as_float();
     if (std::string ty = tag.attribute("y").value(); ty == "center") {
       float h = d.size.has_value()     ? d.size.value().y / 2.f
                 : d.radius.has_value() ? d.radius.value()
                                        : 0;
-      d.position.value().y = ctx.window->getSize().y / 2.f - h;
+      d.position.value().y = ctx.window.getSize().y / 2.f - h;
     } else
       d.position.value().y = tag.attribute("y").as_float();
   }
@@ -214,28 +214,28 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
     e(ptr);
   if (auto tag = n.child("on_hover"); tag) {
     auto a = configure_button<T>(tag, ctx);
-    ptr->on_hover([a](auto *p) {
+    ptr->add_hover_cb([a](auto *p) {
       for (const auto &e : a)
         e(p);
     });
   }
   if (auto tag = n.child("on_unhover"); tag) {
     auto a = configure_button<T>(tag, ctx);
-    ptr->on_unhover([a](auto *p) {
+    ptr->add_unhover_cb([a](auto *p) {
       for (const auto &e : a)
         e(p);
     });
   }
   if (auto tag = n.child("on_click"); tag) {
     auto a = configure_button<T>(tag, ctx);
-    ptr->on_click([a](auto *p) {
+    ptr->add_click_cb([a](auto *p) {
       for (const auto &e : a)
         e(p);
     });
   }
   if (auto tag = n.child("on_unclick"); tag) {
     auto a = configure_button<T>(tag, ctx);
-    ptr->on_unclick([a](auto *p) {
+    ptr->add_unclick_cb([a](auto *p) {
       for (const auto &e : a)
         e(p);
     });
