@@ -1,5 +1,6 @@
 #include "builder.hpp"
 #include "button.hpp"
+#include "context.hpp"
 #include <chrono>
 #include <filesystem>
 #include <iostream>
@@ -16,13 +17,14 @@ int main(int, char **argv) {
     return -1;
   }
 
-  auto scene = fw::build_scene("./xml/demo_button.xml", ctx);
+  auto scene = fw::build_scene(ctx, "./xml/demo_button.xml");
 
   fw::update_data_t data{};
   data.window = &ctx.window;
   sf::Event e{};
 
   auto tag = std::chrono::steady_clock::now();
+  sf::Vector2f mouse_pos{};
 
   while (ctx.window.isOpen()) {
     while (ctx.window.pollEvent(e))
@@ -34,7 +36,8 @@ int main(int, char **argv) {
         17) { // cap framerate at about 60 fps
       tag = std::chrono::steady_clock::now();
       const auto ipos = sf::Mouse::getPosition(ctx.window);
-      data.last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
+      mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
+      data.last_mouse_pos = &mouse_pos;
 
       scene->update(&data);
     }

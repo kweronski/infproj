@@ -57,6 +57,7 @@ int main(int, char **argv) {
   sf::Event e{};
 
   auto tag = std::chrono::steady_clock::now();
+  sf::Vector2f mouse_pos{};
 
   while (win.isOpen()) {
     while (win.pollEvent(e))
@@ -68,7 +69,8 @@ int main(int, char **argv) {
         17) {
       tag = std::chrono::steady_clock::now();
       const auto ipos = sf::Mouse::getPosition(win);
-      data.last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
+      mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
+      data.last_mouse_pos = &mouse_pos;
 
       float magnitude{4.f};
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))

@@ -1,4 +1,5 @@
 #include "builder.hpp"
+#include "context.hpp"
 #include "resource.hpp"
 #include <iostream>
 #include <optional>
@@ -272,8 +273,8 @@ std::unique_ptr<node_t> dispatch_builder(const std::string &type,
 } // namespace fw
 
 namespace fw {
-std::unique_ptr<node_t> build_scene(const std::string &source,
-                                    const context_t &ctx) {
+std::unique_ptr<node_t> build_scene(const context_t &ctx,
+                                    const std::string &source) {
   pugi::xml_document doc;
   pugi::xml_parse_result result = doc.load_file(source.c_str());
 

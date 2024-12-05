@@ -14,7 +14,11 @@ public:
     return true;
   }
 
-  T &get(const std::string &id) { return container_.at(id); }
+  T &get(const std::string &id) {
+    if (!container_.contains(id))
+      throw std::runtime_error{"The requested resource does not exist: " + id};
+    return container_.at(id);
+  }
   const T &get(const std::string &id) const { return container_.at(id); }
 
   bool unload(const std::string &id) {

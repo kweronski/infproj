@@ -7,7 +7,7 @@
 namespace fw {
 struct update_data_t {
   sf::RenderWindow *window;
-  sf::Vector2f last_mouse_pos;
+  sf::Vector2f *last_mouse_pos;
 };
 
 class node_t : public sf::Drawable {

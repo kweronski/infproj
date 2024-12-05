@@ -1,5 +1,9 @@
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+if (DEBUG)
+	add_compile_options(-O0 -g)
+endif()
+
 # Find the required dependencies
 find_package(SFML COMPONENTS system graphics network audio window REQUIRED)
 find_package(PugiXML REQUIRED)
@@ -9,6 +13,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 
 add_library(framework
+	context.cpp
 	builder.cpp
 	node.cpp
 )
