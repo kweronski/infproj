@@ -18,9 +18,7 @@ public:
   void update_current(update_data_t *data) override {
     if (!data)
       return;
-    const auto ipos = sf::Mouse::getPosition(*data->window);
-    sf::Vector2f pos{(float)ipos.x, (float)ipos.y};
-    if (shape_.getGlobalBounds().contains(pos))
+    if (shape_.getGlobalBounds().contains(*data->last_mouse_pos))
       hovered_ = true;
     else
       hovered_ = false;

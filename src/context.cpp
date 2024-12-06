@@ -29,6 +29,9 @@ void update(context_t *ctx) {
   else
     ctx->frame_start = now;
 
+  auto ipos = sf::Mouse::getPosition(ctx->window);
+  ctx->last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
+
   update_data_t d{};
   d.window = &ctx->window;
   d.last_mouse_pos = &ctx->last_mouse_pos;
