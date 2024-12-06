@@ -39,4 +39,7 @@ target_link_libraries(run PRIVATE
 	framework
 )
 
-add_subdirectory(demo)
+option(DEMO "Build demo code" ON)
+if (DEMO)
+	add_subdirectory(demo)
+endif()
