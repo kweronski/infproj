@@ -6,6 +6,7 @@ namespace {
 bool initialize(fw::context_t *ctx);
 bool load_fonts(fw::context_t *ctx);
 bool load_scenes(fw::context_t *ctx);
+bool load_textures(fw::context_t *ctx);
 }
 
 int main(int, char **argv) {
@@ -29,6 +30,11 @@ bool initialize(fw::context_t *ctx) {
     return false;
   }
 
+  if (!load_textures(ctx)) {
+    std::cerr << "Failed to load textures!" << std::endl;
+    return false;
+  }
+
   if (!load_scenes(ctx)) {
     std::cerr << "Failed to load scenes!" << std::endl;
     return false;
@@ -41,6 +47,18 @@ bool initialize(fw::context_t *ctx) {
 
   create_window_from_registers(ctx);
   return true;
+}
+
+bool load_textures(fw::context_t *ctx) {
+  auto try_load = [ctx](const std::string &f, const std::string &n) {
+    if (!ctx->texture.load(f, n)) {
+      std::cerr << "Failed to load: " << f << std::endl;
+      return false;
+    }
+    return true;
+  };
+  bool ok = try_load("./img/logo_rock_paper_scissors.jpeg", "logo_rps");
+  return ok;
 }
 
 bool load_scenes(fw::context_t *ctx) {

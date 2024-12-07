@@ -1,5 +1,6 @@
 #include "builder.hpp"
 #include "context.hpp"
+#include "evaluate.hpp"
 #include <iostream>
 #include <optional>
 #include <pugixml.hpp>

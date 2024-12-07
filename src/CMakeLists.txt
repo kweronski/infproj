@@ -15,6 +15,7 @@ set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 add_library(framework
 	register_builder.cpp
 	button_builder.cpp
+	evaluate.cpp
 	context.cpp
 	builder.cpp
 	node.cpp
