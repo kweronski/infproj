@@ -7,6 +7,8 @@
 
 namespace fw {
 std::unique_ptr<node_t> build_button(const pugi::xml_node &n, context_t *ctx);
+std::unique_ptr<node_t> number_register(const pugi::xml_node &n, context_t *c);
+std::unique_ptr<node_t> string_register(const pugi::xml_node &n, context_t *c);
 
 std::unique_ptr<node_t> dispatch_builder(const std::string &type,
                                          const pugi::xml_node &details,
@@ -16,7 +18,9 @@ std::unique_ptr<node_t> dispatch_builder(const std::string &type,
   using id_t = std::string;
   using table_t = std::unordered_map<id_t, builder_t>;
 
-  static const table_t disp{{"button", build_button}};
+  static const table_t disp{{"button", build_button},
+                            {"nreg", number_register},
+                            {"sreg", string_register}};
 
   if (!disp.contains(type))
     return {};

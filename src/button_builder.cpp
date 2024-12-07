@@ -29,12 +29,14 @@ button_data_t collect_button_data(const pugi::xml_node &n, context_t *ctx) {
   button_data_t d{};
   if (auto tag = n.child("size"); tag) {
     d.size = sf::Vector2f{};
-    d.size.value().x = tag.attribute("w").as_float();
-    d.size.value().y = tag.attribute("h").as_float();
+    d.size.value().x =
+        evaluate_expression<double>(ctx, tag.attribute("w").value());
+    d.size.value().y =
+        evaluate_expression<double>(ctx, tag.attribute("h").value());
   }
 
   if (auto tag = n.child("radius"); tag)
-    d.radius = tag.attribute("value").as_float();
+    d.radius = evaluate_expression<double>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("position"); tag) {
     d.position = sf::Vector2f{};
@@ -42,63 +44,79 @@ button_data_t collect_button_data(const pugi::xml_node &n, context_t *ctx) {
       float w = d.size.has_value()     ? d.size.value().x / 2.f
                 : d.radius.has_value() ? d.radius.value()
                                        : 0;
-      d.position.value().x = ctx->window.getSize().x / 2.f - w;
+      if (ctx->number_register.contains("window_width"))
+        d.position.value().x =
+            ctx->number_register.at("window_width") / 2.f - w;
+      else
+        d.position.value().x = ctx->window.getSize().x / 2.f - w;
     } else
-      d.position.value().x = tag.attribute("x").as_float();
+      d.position.value().x =
+          evaluate_expression<double>(ctx, tag.attribute("x").value());
     if (std::string ty = tag.attribute("y").value(); ty == "center") {
       float h = d.size.has_value()     ? d.size.value().y / 2.f
                 : d.radius.has_value() ? d.radius.value()
                                        : 0;
-      d.position.value().y = ctx->window.getSize().y / 2.f - h;
+      if (ctx->number_register.contains("window_height"))
+        d.position.value().x =
+            ctx->number_register.at("window_height") / 2.f - h;
+      else
+        d.position.value().y = ctx->window.getSize().y / 2.f - h;
     } else
-      d.position.value().y = tag.attribute("y").as_float();
+      d.position.value().y =
+          evaluate_expression<double>(ctx, tag.attribute("y").value());
   }
 
   if (auto tag = n.child("outline_thickness"); tag)
-    d.outline_thickness = tag.attribute("value").as_float();
+    d.outline_thickness =
+        evaluate_expression<double>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("outline_color"); tag) {
-    auto r = static_cast<sf::Uint8>(tag.attribute("r").as_uint());
-    auto g = static_cast<sf::Uint8>(tag.attribute("g").as_uint());
-    auto b = static_cast<sf::Uint8>(tag.attribute("b").as_uint());
+    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
+    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
+    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
     d.outline_color = sf::Color{r, g, b};
   }
 
   if (auto tag = n.child("fill_color"); tag) {
-    auto r = static_cast<sf::Uint8>(tag.attribute("r").as_uint());
-    auto g = static_cast<sf::Uint8>(tag.attribute("g").as_uint());
-    auto b = static_cast<sf::Uint8>(tag.attribute("b").as_uint());
+    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
+    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
+    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
     d.fill_color = sf::Color{r, g, b};
   }
 
   if (auto tag = n.child("text_outline_thickness"); tag)
-    d.text_outline_thickness = tag.attribute("value").as_float();
+    d.text_outline_thickness =
+        evaluate_expression<double>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("text_outline_color"); tag) {
-    auto r = static_cast<sf::Uint8>(tag.attribute("r").as_uint());
-    auto g = static_cast<sf::Uint8>(tag.attribute("g").as_uint());
-    auto b = static_cast<sf::Uint8>(tag.attribute("b").as_uint());
+    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
+    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
+    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
     d.text_outline_color = sf::Color{r, g, b};
   }
 
   if (auto tag = n.child("text_fill_color"); tag) {
-    auto r = static_cast<sf::Uint8>(tag.attribute("r").as_uint());
-    auto g = static_cast<sf::Uint8>(tag.attribute("g").as_uint());
-    auto b = static_cast<sf::Uint8>(tag.attribute("b").as_uint());
+    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
+    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
+    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
     d.text_fill_color = sf::Color{r, g, b};
   }
 
   if (auto tag = n.child("text_character_size"); tag)
-    d.text_character_size = tag.attribute("value").as_float();
+    d.text_character_size =
+        evaluate_expression<double>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("text_string"); tag)
-    d.text_string = tag.attribute("value").value();
+    d.text_string =
+        evaluate_expression<std::string>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("text_font_id"); tag)
-    d.text_font_id = tag.attribute("value").value();
+    d.text_font_id =
+        evaluate_expression<std::string>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("activate_scene"); tag)
-    d.scene_to_activate = tag.attribute("value").value();
+    d.scene_to_activate =
+        evaluate_expression<std::string>(ctx, tag.attribute("value").value());
 
   if (auto tag = n.child("exit"); tag)
     d.exit = true;

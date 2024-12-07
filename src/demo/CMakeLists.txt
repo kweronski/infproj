@@ -33,3 +33,15 @@ target_link_libraries(demo_context PRIVATE
 set_target_properties(demo_context PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${exedir}
 )
+
+add_executable(demo_registers
+	demo_registers.cpp
+)
+
+target_link_libraries(demo_registers PRIVATE
+	framework
+)
+
+set_target_properties(demo_registers PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY ${exedir}
+)

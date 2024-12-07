@@ -12,6 +12,11 @@ int main(int, char **argv) {
 
   if (!load_fonts(&ctx))
     return -1;
+
+  while (ctx.window.isOpen()) {
+    fw::update(&ctx);
+    fw::render(&ctx);
+  }
 }
 
 namespace {
