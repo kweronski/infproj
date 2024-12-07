@@ -3,14 +3,16 @@
 #include <iostream>
 
 namespace {
+bool initialize(fw::context_t *ctx);
 bool load_fonts(fw::context_t *ctx);
+bool load_scenes(fw::context_t *ctx);
 }
 
 int main(int, char **argv) {
   fw::context_t ctx{};
   fw::cd_to_binary_dir(&ctx, argv[0]);
 
-  if (!load_fonts(&ctx))
+  if (!initialize(&ctx))
     return -1;
 
   while (ctx.window.isOpen()) {
@@ -20,10 +22,45 @@ int main(int, char **argv) {
 }
 
 namespace {
+bool initialize(fw::context_t *ctx) {
+  ctx->event_cb_map[sf::Event::Closed] = [](auto *p) { p->window.close(); };
+  if (!load_fonts(ctx)) {
+    std::cerr << "Failed to load fonts!" << std::endl;
+    return false;
+  }
+
+  if (!load_scenes(ctx)) {
+    std::cerr << "Failed to load scenes!" << std::endl;
+    return false;
+  }
+
+  if (!fw::activate_scene(ctx, "main_menu")) {
+    std::cerr << "Failed to activate the initial scene!" << std::endl;
+    return false;
+  }
+
+  create_window_from_registers(ctx);
+  return true;
+}
+
+bool load_scenes(fw::context_t *ctx) {
+  auto try_load = [ctx](const std::string &f, const std::string &n) {
+    if (!fw::load_scene(ctx, f, n)) {
+      std::cerr << "Failed to load: " << f << std::endl;
+      return false;
+    }
+    return true;
+  };
+  bool ok = try_load("./xml/main_menu.xml", "main_menu") &&
+            try_load("./xml/selection_menu.xml", "selection_menu") &&
+            try_load("./xml/settings_menu.xml", "settings_menu");
+  return ok;
+}
+
 bool load_fonts(fw::context_t *ctx) {
   auto try_load = [ctx](const std::string &f, const std::string &n) {
     if (!ctx->font.load(f, n)) {
-      std::cerr << "Failed to load a font from: " << f << std::endl;
+      std::cerr << "Failed to load: " << f << std::endl;
       return false;
     }
     return true;

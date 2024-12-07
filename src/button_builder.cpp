@@ -25,19 +25,8 @@ struct button_data_t {
   bool exit{false};
 };
 
-button_data_t collect_button_data(const pugi::xml_node &n, context_t *ctx) {
-  button_data_t d{};
-  if (auto tag = n.child("size"); tag) {
-    d.size = sf::Vector2f{};
-    d.size.value().x =
-        evaluate_expression<double>(ctx, tag.attribute("w").value());
-    d.size.value().y =
-        evaluate_expression<double>(ctx, tag.attribute("h").value());
-  }
-
-  if (auto tag = n.child("radius"); tag)
-    d.radius = evaluate_expression<double>(ctx, tag.attribute("value").value());
-
+void collect_position(const pugi::xml_node &n, context_t *ctx,
+                      button_data_t &d) {
   if (auto tag = n.child("position"); tag) {
     d.position = sf::Vector2f{};
     if (std::string tx = tag.attribute("x").value(); tx == "center") {
@@ -52,6 +41,7 @@ button_data_t collect_button_data(const pugi::xml_node &n, context_t *ctx) {
     } else
       d.position.value().x =
           evaluate_expression<double>(ctx, tag.attribute("x").value());
+
     if (std::string ty = tag.attribute("y").value(); ty == "center") {
       float h = d.size.has_value()     ? d.size.value().y / 2.f
                 : d.radius.has_value() ? d.radius.value()
@@ -65,42 +55,53 @@ button_data_t collect_button_data(const pugi::xml_node &n, context_t *ctx) {
       d.position.value().y =
           evaluate_expression<double>(ctx, tag.attribute("y").value());
   }
+}
+
+std::optional<sf::Color> collect_color(const pugi::xml_node &n, context_t *ctx,
+                                       const std::string &id) {
+  if (auto tag = n.child(id.c_str()); tag) {
+    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
+    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
+    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
+    return sf::Color{r, g, b};
+  }
+  return {};
+}
+
+button_data_t collect_button_data(const pugi::xml_node &n, context_t *ctx) {
+  button_data_t d{};
+  if (auto tag = n.child("size"); tag) {
+    d.size = sf::Vector2f{};
+    d.size.value().x =
+        evaluate_expression<double>(ctx, tag.attribute("w").value());
+    d.size.value().y =
+        evaluate_expression<double>(ctx, tag.attribute("h").value());
+  }
+
+  if (auto tag = n.child("radius"); tag)
+    d.radius = evaluate_expression<double>(ctx, tag.attribute("value").value());
+
+  collect_position(n, ctx, d);
 
   if (auto tag = n.child("outline_thickness"); tag)
     d.outline_thickness =
         evaluate_expression<double>(ctx, tag.attribute("value").value());
 
-  if (auto tag = n.child("outline_color"); tag) {
-    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
-    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
-    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
-    d.outline_color = sf::Color{r, g, b};
-  }
+  if (auto c = collect_color(n, ctx, "outline_color"); c)
+    d.outline_color = c;
 
-  if (auto tag = n.child("fill_color"); tag) {
-    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
-    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
-    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
-    d.fill_color = sf::Color{r, g, b};
-  }
+  if (auto c = collect_color(n, ctx, "fill_color"); c)
+    d.fill_color = c;
 
   if (auto tag = n.child("text_outline_thickness"); tag)
     d.text_outline_thickness =
         evaluate_expression<double>(ctx, tag.attribute("value").value());
 
-  if (auto tag = n.child("text_outline_color"); tag) {
-    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
-    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
-    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
-    d.text_outline_color = sf::Color{r, g, b};
-  }
+  if (auto c = collect_color(n, ctx, "text_outline_color"); c)
+    d.text_outline_color = c;
 
-  if (auto tag = n.child("text_fill_color"); tag) {
-    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
-    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
-    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
-    d.text_fill_color = sf::Color{r, g, b};
-  }
+  if (auto c = collect_color(n, ctx, "text_fill_color"); c)
+    d.text_fill_color = c;
 
   if (auto tag = n.child("text_character_size"); tag)
     d.text_character_size =

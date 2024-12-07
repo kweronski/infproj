@@ -1,0 +1,32 @@
+<root>
+	<button type="rectangle">
+		<position x="__n:window_width - __n:menu_button_width - __n:menu_button_padding / 2"
+			y="__n:window_height - __n:menu_button_height - __n:menu_button_padding / 2"/>
+		<size w="__n:menu_button_width" h="__n:menu_button_height"/>
+		<outline_thickness value="__n:menu_button_padding / 2"/>
+		<outline_color r="__n:btcol0_r" g="__n:btcol0_g" b="__n:btcol0_b"/>
+		<fill_color r="__n:btcol1_r" g="__n:btcol1_g" b="__n:btcol1_b"/>
+
+		<text_fill_color r="__n:btcol0_r" g="__n:btcol0_g" b="__n:btcol0_b"/>
+		<text_character_size value="0.08 * __n:window_height"/>
+		<text_string value="Back"/>
+		<text_font_id value="__s:menu_button_font"/>
+
+		<on_hover>
+			<outline_color r="__n:btcol2_r" g="__n:btcol2_g" b="__n:btcol2_b"/>
+		</on_hover>
+
+		<on_unhover>
+			<outline_color r="__n:btcol0_r" g="__n:btcol0_g" b="__n:btcol0_b"/>
+		</on_unhover>
+
+		<on_click>
+			<outline_color r="__n:btcol1_r" g="__n:btcol1_g" b="__n:btcol1_b"/>
+			<activate_scene value="main_menu"/>
+		</on_click>
+
+		<on_unclick>
+			<outline_color r="__n:btcol0_r" g="__n:btcol0_g" b="__n:btcol0_b"/>
+		</on_unclick>
+	</button>
+</root>
