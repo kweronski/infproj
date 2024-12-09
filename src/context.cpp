@@ -61,12 +61,11 @@ bool activate_scene(context_t *ctx, const std::string &s) {
 
 bool load_scene(context_t *ctx, const std::string &xml, std::string id) {
   auto scene = build_scene(ctx, xml);
-  if (!scene)
-    return true; // allow register setting only,
-                 // but don't add nullptr as scene =)
-  if (ctx->scene_map.contains(id))
-    return false;
-  ctx->scene_map[id] = std::move(scene);
+  if (scene) {
+    if (ctx->scene_map.contains(id))
+      ctx->scene_map.erase(id);
+    ctx->scene_map[id] = std::move(scene);
+  }
   return true;
 }
 

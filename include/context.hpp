@@ -4,7 +4,6 @@
 #include "resource.hpp"
 #include <chrono>
 #include <functional>
-#include <iostream>
 #include <optional>
 #include <ranges>
 

@@ -41,11 +41,18 @@ public:
   node_t *parent() const;
   void parent(node_t *);
 
+  void id(std::string);
+  const std::string &id() const;
+
+  friend node_t *breadth_search(node_t *, const std::string &id);
+  friend node_t *depth_search(node_t *, const std::string &id);
+
 private:
   std::list<ptr_t> nodes_;
   bool active_{true};
   bool visible_{true};
   node_t *parent_{nullptr};
+  std::string id_;
 };
 
 template <typename T> class basic_node_t : public node_t {
@@ -60,4 +67,5 @@ public:
 private:
   T shape_;
 };
+
 } // namespace fw

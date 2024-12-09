@@ -1,6 +1,7 @@
 #pragma once
 
 #include "context.hpp"
+#include <iostream>
 
 #ifndef EXPRTK_HEADER_INCLUDED
 #define EXPRTK_HEADER_INCLUDED

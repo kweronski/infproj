@@ -2,8 +2,8 @@
 	<sreg id="window_title" value="Challenge Fusion"/>
 	<sreg id="menu_button_font" value="AnonymousPro"/>
 
-	<nreg id="window_width" value="640"/>
-	<nreg id="window_height" value="480"/>
+	<nreg id="window_width" value="1920"/>
+	<nreg id="window_height" value="1080"/>
 
 	<nreg id="btcol0_r" value="255"/>
 	<nreg id="btcol0_g" value="255"/>

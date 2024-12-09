@@ -57,7 +57,11 @@ bool load_textures(fw::context_t *ctx) {
     }
     return true;
   };
-  bool ok = try_load("./img/logo_rock_paper_scissors.jpeg", "logo_rps");
+  bool ok = try_load("./img/logo_rock_paper_scissors.jpeg", "logo_rps") &&
+            try_load("./img/rock.jpeg", "rock_icon") &&
+            try_load("./img/paper.jpeg", "paper_icon") &&
+            try_load("./img/scissors.jpeg", "scissors_icon");
+  try_load("./img/cursor.png", "cursor");
   return ok;
 }
 

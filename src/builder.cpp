@@ -1,8 +1,6 @@
 #include "builder.hpp"
 #include "context.hpp"
 #include <iostream>
-#include <optional>
-#include <pugixml.hpp>
 #include <unordered_map>
 
 namespace fw {
@@ -26,9 +24,7 @@ std::unique_ptr<node_t> dispatch_builder(const std::string &type,
     return {};
   return disp.at(type)(details, ctx);
 }
-} // namespace fw
 
-namespace fw {
 std::unique_ptr<node_t> build_scene(context_t *ctx, const std::string &source) {
   pugi::xml_document doc;
   pugi::xml_parse_result result = doc.load_file(source.c_str());

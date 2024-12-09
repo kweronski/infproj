@@ -1,28 +1,60 @@
 <root>
-	<button type="sprite" id="rps_start_button">
-		<position x="0.1 * __n:window_height" y="0.1 * __n:window_height"/>
-		<fill_texture id="logo_rps"/>
-		<scale x="0.5" y="0.5"/>
+	<button type="sprite">
+		<position x="10" y="150"/>
+		<fill_texture id="rock_icon"/>
+		<scale x="0.2" y="0.2"/>
+
+		<on_hover>
+		</on_hover>
+
+		<on_unhover>
+		</on_unhover>
+
+		<on_click>
+		</on_click>
+
+		<on_unclick>
+		</on_unclick>
 	</button>
 
-	<button type="sprite" id="cursor">
-		<position x="center" y="center"/>
-		<fill_texture id="cursor"/>
-		<scale x="0.5" y="0.5"/>
+	<button type="sprite">
+		<position x="10" y="150 * 2"/>
+		<fill_texture id="paper_icon"/>
+		<scale x="0.2" y="0.2"/>
 
-		<on_touch id="rps_start_button">
-			<load_scene id="rock_paper_scissors" src="./xml/rock_paper_scissors.xml"/>
-			<activate_scene value="rock_paper_scissors"/>
-		</on_touch>
+		<on_hover>
+		</on_hover>
 
-		<on_press key="W" move="-1" axis="y"/>
-		<on_press key="A" move="-1" axis="x"/>
-		<on_press key="S" move="1" axis="y"/>
-		<on_press key="D" move="1" axis="x"/>
+		<on_unhover>
+		</on_unhover>
+
+		<on_click>
+		</on_click>
+
+		<on_unclick>
+		</on_unclick>
+	</button>
+
+	<button type="sprite">
+		<position x="10" y="150 * 3"/>
+		<fill_texture id="scissors_icon"/>
+		<scale x="0.2" y="0.2"/>
+
+		<on_hover>
+		</on_hover>
+
+		<on_unhover>
+		</on_unhover>
+
+		<on_click>
+		</on_click>
+
+		<on_unclick>
+		</on_unclick>
 	</button>
 
 	<button type="rectangle">
-		<position x="__n:window_width - __n:menu_button_width - __n:menu_button_padding / 2"
+		<position x="center"
 			y="__n:window_height - __n:menu_button_height - __n:menu_button_padding / 2"/>
 		<size w="__n:menu_button_width" h="__n:menu_button_height"/>
 		<outline_thickness value="__n:menu_button_padding / 2"/>
@@ -44,7 +76,7 @@
 
 		<on_click>
 			<outline_color r="__n:btcol1_r" g="__n:btcol1_g" b="__n:btcol1_b"/>
-			<activate_scene value="main_menu"/>
+			<activate_scene value="selection_menu"/>
 		</on_click>
 
 		<on_unclick>
