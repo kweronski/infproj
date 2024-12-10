@@ -44,8 +44,11 @@ std::unique_ptr<node_t> build_scene(context_t *ctx, const std::string &source) {
 
   std::unique_ptr<node_t> root{new node_t{}};
   for (auto c = rootx.first_child(); c; c = c.next_sibling())
-    if (auto ptr = dispatch_builder(c.name(), c, ctx); ptr)
+    if (auto ptr = dispatch_builder(c.name(), c, ctx); ptr) {
+      if (auto id = std::string{c.attribute("id").value()}; id.size())
+        ctx->vip_nodes.emplace(id, ptr.get());
       root->attach(std::move(ptr));
+    }
   return root;
 }
 } // namespace fw

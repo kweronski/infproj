@@ -30,6 +30,13 @@ struct context_t {
 
   std::unordered_map<std::string, double> number_register{};
   std::unordered_map<std::string, std::string> string_register{};
+
+  std::unordered_map<std::string, node_t *> vip_nodes{};
+
+  std::list<std::function<void(context_t *)>> commands{};
+  std::list<std::pair<unsigned, std::function<void(context_t *)>>> routines{};
+
+  std::size_t routine_id_{};
 };
 
 void cd_to_binary_dir(context_t *, const std::string &);
@@ -37,6 +44,9 @@ void update(context_t *);
 void render(context_t *);
 bool activate_scene(context_t *, const std::string &);
 bool load_scene(context_t *, const std::string &xml, std::string id);
+unsigned add_routine(context_t *, std::function<void(context_t *)>);
+void remove_routine(context_t *, unsigned);
+void add_command(context_t *, std::function<void(context_t *)>);
 
 template <typename T>
 std::optional<T> fetch_from_register(const context_t *c,

@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <list>
 #include <memory>
+#include <optional>
 
 namespace fw {
 struct update_data_t {
@@ -46,6 +47,9 @@ public:
 
   friend node_t *breadth_search(node_t *, const std::string &id);
   friend node_t *depth_search(node_t *, const std::string &id);
+
+  virtual void move(float, float);
+  virtual std::optional<sf::Rect<float>> bounds() const { return {}; }
 
 private:
   std::list<ptr_t> nodes_;

@@ -58,6 +58,21 @@ auto configure_common(const pugi::xml_node &n, context_t *ctx) {
     });
   if (d.exit)
     actions.push_back([d](auto *, auto *ctx) { ctx->window.close(); });
+
+  if (d.bindings.size()) {
+    actions.push_back([d](auto *ptr, auto *) {
+      ptr->add_press_cb([d](auto *ptr) {
+        for (const auto &b : d.bindings) {
+          if (sf::Keyboard::isKeyPressed(b.key)) {
+            if (b.axis == press_binding_t::axis_t::x)
+              ptr->move(b.move, 0);
+            else
+              ptr->move(0, b.move);
+          }
+        }
+      });
+    });
+  }
   return std::pair(actions, d);
 }
 
@@ -188,12 +203,13 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
 
 namespace fw {
 std::unique_ptr<node_t> build_button(const pugi::xml_node &n, context_t *ctx) {
+  std::unique_ptr<node_t> node{};
   if (auto type = std::string{n.attribute("type").value()}; type == "rectangle")
-    return build_button_type<button_t<sf::RectangleShape>>(n, ctx);
+    node = build_button_type<button_t<sf::RectangleShape>>(n, ctx);
   else if (type == "circle")
-    return build_button_type<button_t<sf::CircleShape>>(n, ctx);
+    node = build_button_type<button_t<sf::CircleShape>>(n, ctx);
   else if (type == "sprite")
-    return build_button_type<button_t<sf::Sprite>>(n, ctx);
-  return {};
+    node = build_button_type<button_t<sf::Sprite>>(n, ctx);
+  return node;
 }
 } // namespace fw

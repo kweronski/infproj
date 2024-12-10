@@ -86,4 +86,6 @@ node_t *depth_search(node_t *root, const std::string &id) {
   }
   return nullptr;
 }
+
+void node_t::move(float, float) {}
 } // namespace fw

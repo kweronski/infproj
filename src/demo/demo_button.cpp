@@ -74,13 +74,13 @@ int main(int, char **argv) {
 
       float magnitude{4.f};
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-        btn->move({magnitude, 0.f});
+        btn->move(magnitude, 0.f);
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-        btn->move({-magnitude, 0.f});
+        btn->move(-magnitude, 0.f);
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        btn->move({0.f, -magnitude});
+        btn->move(0.f, -magnitude);
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-        btn->move({0.f, magnitude});
+        btn->move(0.f, magnitude);
       scene.update(&data);
     }
 

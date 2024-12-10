@@ -5,6 +5,23 @@
 #include <ranges>
 
 namespace fw {
+unsigned add_routine(context_t *ctx, std::function<void(context_t *)> f) {
+  ctx->routines.push_back({++ctx->routine_id_, f});
+  return ctx->routine_id_;
+}
+
+void remove_routine(context_t *ctx, unsigned id) {
+  for (auto it = ctx->routines.begin(); it != ctx->routines.end(); ++it)
+    if (it->first == id) {
+      ctx->routines.erase(it);
+      return;
+    }
+}
+
+void add_command(context_t *ctx, std::function<void(context_t *)> f) {
+  ctx->commands.push_back(f);
+}
+
 void cd_to_binary_dir(context_t *ctx, const std::string &p) {
   if (!std::filesystem::exists(p))
     return;
@@ -36,6 +53,14 @@ void update(context_t *ctx) {
   update_data_t d{};
   d.window = &ctx->window;
   d.last_mouse_pos = &ctx->last_mouse_pos;
+
+  while (ctx->commands.size()) {
+    ctx->commands.front()(ctx);
+    ctx->commands.pop_front();
+  }
+
+  for (const auto &r : ctx->routines)
+    r.second(ctx);
 
   if (ctx->active_scene)
     ctx->active_scene->update(&d);

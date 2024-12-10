@@ -1,4 +1,6 @@
 <root>
+	<nreg id="cursor_mm" value="5"/>
+
 	<button type="sprite" id="rps_start_button">
 		<position x="0.1 * __n:window_height" y="0.1 * __n:window_height"/>
 		<fill_texture id="logo_rps"/>
@@ -15,10 +17,15 @@
 			<activate_scene value="rock_paper_scissors"/>
 		</on_touch>
 
-		<on_press key="W" move="-1" axis="y"/>
-		<on_press key="A" move="-1" axis="x"/>
-		<on_press key="S" move="1" axis="y"/>
-		<on_press key="D" move="1" axis="x"/>
+		<on_press key="W" move="(-1) * __n:cursor_mm" axis="y"/>
+		<on_press key="A" move="(-1) * __n:cursor_mm" axis="x"/>
+		<on_press key="S" move="__n:cursor_mm" axis="y"/>
+		<on_press key="D" move="__n:cursor_mm" axis="x"/>
+
+		<on_press key="Up" move="(-1) * __n:cursor_mm" axis="y"/>
+		<on_press key="Left" move="(-1) * __n:cursor_mm" axis="x"/>
+		<on_press key="Down" move="__n:cursor_mm" axis="y"/>
+		<on_press key="Right" move="__n:cursor_mm" axis="x"/>
 	</button>
 
 	<button type="rectangle">

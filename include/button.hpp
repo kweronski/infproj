@@ -44,6 +44,14 @@ public:
       click_tracker_ = false;
       this->on_unclick();
     }
+
+    for (const auto &f : press_cb_)
+      if (f.second)
+        f.second(this);
+  }
+
+  std::optional<sf::Rect<float>> bounds() const override {
+    return shape_.getGlobalBounds();
   }
 
 private:
@@ -127,15 +135,20 @@ public:
         f.second(this);
   }
 
+  unsigned add_press_cb(cb_t f) {
+    press_cb_.push_back({++cb_id_, f});
+    return cb_id_;
+  }
+
   bool hovered() const { return hovered_; }
   bool clicked() const { return clicked_; }
 
   sf::Text *label() { return &label_; }
   S *shape() { return &shape_; }
 
-  void move(sf::Vector2f d) {
-    shape_.move(d);
-    label_.move(d);
+  void move(float x, float y) override {
+    shape_.move({x, y});
+    label_.move({x, y});
   }
 
   void center() {
@@ -160,6 +173,8 @@ private:
 
   cb_container_t hover_cb_{};
   cb_container_t click_cb_{};
+
+  cb_container_t press_cb_{};
 
   sf::Text label_{};
   S shape_{};

@@ -4,6 +4,13 @@
 #include <pugixml.hpp>
 
 namespace fw {
+struct press_binding_t {
+  sf::Keyboard::Key key;
+  float move;
+  enum class axis_t { x, y };
+  axis_t axis;
+};
+
 struct node_data_t {
   std::optional<sf::Vector2f> position{};
   std::optional<sf::Vector2f> size{};
@@ -25,6 +32,7 @@ struct node_data_t {
   std::optional<float> scale_x{};
   std::optional<float> scale_y{};
   std::optional<std::string> id{};
+  std::list<press_binding_t> bindings{};
   bool exit{false};
 };
 
