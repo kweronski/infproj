@@ -43,7 +43,7 @@ void update(context_t *ctx) {
   s->last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
 
   update_data_t d{};
-  d.window = s->window;
+  d.window = &ctx->window;
   d.last_mouse_pos = &s->last_mouse_pos;
 
   while (s->commands.size()) {
@@ -51,9 +51,11 @@ void update(context_t *ctx) {
     s->commands.pop_front();
   }
 
+  if (s->root)
+    s->root->update(&d);
+
   for (const auto &r : s->routines)
     r.functor(s);
-  s->root->update(&d);
 }
 
 void render(context_t *ctx) {

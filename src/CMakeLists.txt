@@ -18,6 +18,7 @@ add_library(framework
 	node_builder.cpp
 	context.cpp
 	builder.cpp
+	scene.cpp
 	node.cpp
 )
 

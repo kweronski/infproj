@@ -25,8 +25,6 @@ struct node_data_t {
   std::optional<std::string> text_font_id{};
   std::optional<float> radius{};
   std::optional<std::string> scene_to_activate{};
-  std::optional<std::string> scene_to_load_src{};
-  std::optional<std::string> scene_to_load_id{};
   std::optional<std::string> fill_texture_src{};
   std::optional<std::string> fill_texture_id{};
   std::optional<float> scale_x{};

@@ -167,13 +167,6 @@ node_data_t collect_node_data(const pugi::xml_node &n, scene_t *s) {
     d.scene_to_activate =
         evaluate<std::string>(s, tag.attribute("value").value());
 
-  if (auto tag = n.child("load_scene"); tag)
-    d.scene_to_load_src =
-        evaluate<std::string>(s, tag.attribute("src").value());
-
-  if (auto tag = n.child("load_scene"); tag)
-    d.scene_to_load_id = evaluate<std::string>(s, tag.attribute("id").value());
-
   auto tag = n.child("on_press");
   while (tag) {
     collect_binding(tag, s, d);

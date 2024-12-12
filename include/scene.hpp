@@ -43,6 +43,8 @@ struct scene_t {
 
 template <typename T>
 T get_value_from_register(const scene_t *s, const std::string &id) {
+  if (!s)
+    throw std::runtime_error{"The scene pointer is nullptr!"};
   if (s->local_registers.number.get_pointer(id))
     return s->local_registers.number.get_value<T>(id);
   if (s->global_registers->number.get_pointer(id))
@@ -54,6 +56,8 @@ T get_value_from_register(const scene_t *s, const std::string &id) {
 template <>
 inline std::string get_value_from_register(const scene_t *s,
                                            const std::string &id) {
+  if (!s)
+    throw std::runtime_error{"The scene pointer is nullptr!"};
   if (s->local_registers.string.get_pointer(id))
     return s->local_registers.string.get_value<std::string>(id);
   if (s->global_registers->string.get_pointer(id))

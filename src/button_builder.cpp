@@ -12,12 +12,14 @@ namespace {
 using namespace fw;
 
 template <typename T> inline void center(scene_t *s, button_t<T> *b) {
-  sf::Vector2f wsz = {(float)s->window->getSize().x,
-                      (float)s->window->getSize().y};
+  sf::Vector2f wsz{};
+  if (s->window->isOpen()) {
+    wsz = {(float)s->window->getSize().x, (float)s->window->getSize().y};
+  }
   if (!wsz.x || !wsz.y)
     wsz = sf::Vector2f{get_value_from_register<float>(s, "window_width"),
                        get_value_from_register<float>(s, "window_height")};
-  auto ssz = b->shape()->getGlobalBounds();
+  auto ssz = b->bounds().value();
   b->shape()->setPosition(
       {wsz.x / 2 - ssz.width / 2, wsz.y / 2 - ssz.height / 2});
 }
@@ -50,10 +52,6 @@ auto configure_common(const pugi::xml_node &n, scene_t *s) {
     actions.push_back([d](auto *ptr, auto *, auto *) {
       ptr->label()->setString(d.text_string.value());
       ptr->center();
-    });
-  if (d.scene_to_load_src.has_value() && d.scene_to_load_id.has_value())
-    actions.push_back([d](auto *, auto *ctx, auto *) {
-      load_scene(ctx, d.scene_to_load_src.value(), d.scene_to_load_id.value());
     });
   if (d.scene_to_activate.has_value())
     actions.push_back([d](auto *, auto *ctx, auto *) {
@@ -171,35 +169,53 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
                                           context_t *ctx, scene_t *s) {
   auto ptr = new T{};
   std::unique_ptr<node_t> sptr{ptr};
+
   auto actions = configure_button<T>(n, s);
   for (const auto &e : actions)
     e(ptr, ctx, s);
-  if (auto tag = n.child("on_hover"); tag) {
+
+  if (auto tag = n.child("on_hover"); tag && tag.first_child()) {
     auto a = configure_button<T>(tag, s);
     ptr->add_hover_cb([a, ctx, s](auto *p) {
       for (const auto &e : a)
         e(p, ctx, s);
     });
   }
-  if (auto tag = n.child("on_unhover"); tag) {
+  if (auto tag = n.child("on_unhover"); tag && tag.first_child()) {
     auto a = configure_button<T>(tag, s);
     ptr->add_unhover_cb([a, ctx, s](auto *p) {
       for (const auto &e : a)
         e(p, ctx, s);
     });
   }
-  if (auto tag = n.child("on_click"); tag) {
+  if (auto tag = n.child("on_click"); tag && tag.first_child()) {
     auto a = configure_button<T>(tag, s);
     ptr->add_click_cb([a, ctx, s](auto *p) {
       for (const auto &e : a)
         e(p, ctx, s);
     });
   }
-  if (auto tag = n.child("on_unclick"); tag) {
+  if (auto tag = n.child("on_unclick"); tag && tag.first_child()) {
     auto a = configure_button<T>(tag, s);
     ptr->add_unclick_cb([a, ctx, s](auto *p) {
       for (const auto &e : a)
         e(p, ctx, s);
+    });
+  }
+  if (auto tag = n.child("on_touch"); tag && tag.first_child()) {
+    std::string target = tag.attribute("id").value();
+    if (!target.size())
+      throw std::runtime_error{
+          "Invalid use of on_touch tag. An id is required!"};
+
+    auto a = configure_button<T>(tag, s);
+    add_routine(s, [a, ctx, ptr, target](auto *s) {
+      if (auto tb = s->vip_nodes.at(target)->bounds(); tb.has_value()) {
+        if (auto pb = ptr->bounds(); pb.has_value())
+          if (tb.value().intersects(pb.value()))
+            for (const auto &e : a)
+              e(ptr, ctx, s);
+      }
     });
   }
   return sptr;
