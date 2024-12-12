@@ -1,26 +1,40 @@
+<sreg id="window_title" value="Challenge Fusion"/>
+<nreg id="window_width" value="1920"/>
+<nreg id="window_height" value="1080"/>
+
+<sreg id="menu_button_font" value="AnonymousPro"/>
+
+<nreg id="btcol0_r" value="255"/>
+<nreg id="btcol0_g" value="255"/>
+<nreg id="btcol0_b" value="255"/>
+
+<nreg id="btcol1_r" value="0"/>
+<nreg id="btcol1_g" value="0"/>
+<nreg id="btcol1_b" value="0"/>
+
+<nreg id="btcol2_r" value="255"/>
+<nreg id="btcol2_g" value="0"/>
+<nreg id="btcol2_b" value="0"/>
+
+<nreg id="menu_button_width" value="__n:window_width / 3"/>
+<nreg id="menu_button_height" value="100"/>
+<nreg id="menu_button_padding" value="10"/>
+
+<scene id="selection_menu" src="./xml/selection_menu.xml"/>
+<scene id="settings_menu" src="./xml/settings_menu.xml"/>
+
+<font id="AnonymousPro" src="./font/AnonymousPro-Regular.ttf"/>
+<font id="CourierPrime" src="./font/CourierPrime.ttf"/>
+<font id="Digital-7" src="./font/digital-7.ttf"/>
+<font id="Inconsolata" src="./font/Inconsolata-Regular.ttf"/>
+<font id="JetBrainsMono" src="./font/JetBrainsMono-Regular.ttf"/>
+<font id="MerchantCopy" src="./font/MerchantCopy.ttf"/>
+<font id="Ninepin" src="./font/ninepin.ttf"/>
+<font id="November" src="./font/november.ttf"/>
+<font id="SophieMono" src="./font/SophieMonoSerif.ttf"/>
+<font id="SourceCodePro" src="./font/SourceCodePro-Regular.ttf"/>
+
 <root>
-	<sreg id="window_title" value="Challenge Fusion"/>
-	<sreg id="menu_button_font" value="AnonymousPro"/>
-
-	<nreg id="window_width" value="1920"/>
-	<nreg id="window_height" value="1080"/>
-
-	<nreg id="btcol0_r" value="255"/>
-	<nreg id="btcol0_g" value="255"/>
-	<nreg id="btcol0_b" value="255"/>
-
-	<nreg id="btcol1_r" value="0"/>
-	<nreg id="btcol1_g" value="0"/>
-	<nreg id="btcol1_b" value="0"/>
-
-	<nreg id="btcol2_r" value="255"/>
-	<nreg id="btcol2_g" value="0"/>
-	<nreg id="btcol2_b" value="0"/>
-
-	<nreg id="menu_button_width" value="__n:window_width / 3"/>
-	<nreg id="menu_button_height" value="100"/>
-	<nreg id="menu_button_padding" value="10"/>
-
 	<button type="rectangle">
 		<position x="center" y="0.1 * __n:window_height"/>
 		<size w="__n:menu_button_width" h="__n:menu_button_height"/>

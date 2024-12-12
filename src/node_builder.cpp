@@ -3,7 +3,7 @@
 
 namespace {
 using namespace fw;
-void collect_binding(const pugi::xml_node &n, context_t *ctx, node_data_t &d) {
+void collect_binding(const pugi::xml_node &n, scene_t *s, node_data_t &d) {
   static const std::unordered_map<std::string, sf::Keyboard::Key> bindings{
       {"a", sf::Keyboard::Key::A},       {"A", sf::Keyboard::Key::A},
       {"b", sf::Keyboard::Key::B},       {"B", sf::Keyboard::Key::B},
@@ -34,11 +34,9 @@ void collect_binding(const pugi::xml_node &n, context_t *ctx, node_data_t &d) {
       {"Left", sf::Keyboard::Key::Left}, {"Right", sf::Keyboard::Key::Right},
       {"Up", sf::Keyboard::Key::Up},     {"Down", sf::Keyboard::Key::Down}};
 
-  std::string k =
-      evaluate_expression<std::string>(ctx, n.attribute("key").value());
-  double m = evaluate_expression<double>(ctx, n.attribute("move").value());
-  std::string a =
-      evaluate_expression<std::string>(ctx, n.attribute("axis").value());
+  std::string k = evaluate<std::string>(s, n.attribute("key").value());
+  double m = evaluate<double>(s, n.attribute("move").value());
+  std::string a = evaluate<std::string>(s, n.attribute("axis").value());
 
   press_binding_t b{};
 
@@ -52,7 +50,7 @@ void collect_binding(const pugi::xml_node &n, context_t *ctx, node_data_t &d) {
   d.bindings.push_back(std::move(b));
 }
 
-void collect_position(const pugi::xml_node &n, context_t *ctx, node_data_t &d) {
+void collect_position(const pugi::xml_node &n, scene_t *s, node_data_t &d) {
   auto tag = n.child("position");
   if (!tag)
     return;
@@ -67,13 +65,14 @@ void collect_position(const pugi::xml_node &n, context_t *ctx, node_data_t &d) {
       d.position = decltype(d.position){};
       return;
     }
-    if (ctx->number_register.contains("window_width"))
-      d.position.value().x = ctx->number_register.at("window_width") / 2.f - w;
-    else
-      d.position.value().x = ctx->window.getSize().x / 2.f - w;
+    try {
+      d.position.value().x =
+          get_value_from_register<double>(s, "window_width") / 2.f - w;
+    } catch (...) {
+      d.position.value().x = s->window->getSize().x / 2.f - w;
+    }
   } else
-    d.position.value().x =
-        evaluate_expression<double>(ctx, tag.attribute("x").value());
+    d.position.value().x = evaluate<double>(s, tag.attribute("x").value());
 
   if (std::string ty = tag.attribute("y").value(); ty == "center") {
     float h = d.size.has_value()     ? d.size.value().y / 2.f
@@ -83,21 +82,22 @@ void collect_position(const pugi::xml_node &n, context_t *ctx, node_data_t &d) {
       d.position = decltype(d.position){};
       return;
     }
-    if (ctx->number_register.contains("window_height"))
-      d.position.value().x = ctx->number_register.at("window_height") / 2.f - h;
-    else
-      d.position.value().y = ctx->window.getSize().y / 2.f - h;
+    try {
+      d.position.value().y =
+          get_value_from_register<double>(s, "window_height") / 2.f - h;
+    } catch (...) {
+      d.position.value().y = s->window->getSize().y / 2.f - h;
+    }
   } else
-    d.position.value().y =
-        evaluate_expression<double>(ctx, tag.attribute("y").value());
+    d.position.value().y = evaluate<double>(s, tag.attribute("y").value());
 }
 
-std::optional<sf::Color> collect_color(const pugi::xml_node &n, context_t *ctx,
+std::optional<sf::Color> collect_color(const pugi::xml_node &n, scene_t *s,
                                        const std::string &id) {
   if (auto tag = n.child(id.c_str()); tag) {
-    auto r = evaluate_expression<sf::Uint8>(ctx, tag.attribute("r").value());
-    auto g = evaluate_expression<sf::Uint8>(ctx, tag.attribute("g").value());
-    auto b = evaluate_expression<sf::Uint8>(ctx, tag.attribute("b").value());
+    auto r = evaluate<sf::Uint8>(s, tag.attribute("r").value());
+    auto g = evaluate<sf::Uint8>(s, tag.attribute("g").value());
+    auto b = evaluate<sf::Uint8>(s, tag.attribute("b").value());
     return sf::Color{r, g, b};
   }
   return {};
@@ -105,87 +105,78 @@ std::optional<sf::Color> collect_color(const pugi::xml_node &n, context_t *ctx,
 } // namespace
 
 namespace fw {
-node_data_t collect_node_data(const pugi::xml_node &n, context_t *ctx) {
+node_data_t collect_node_data(const pugi::xml_node &n, scene_t *s) {
   node_data_t d{};
   if (auto tag = n.child("size"); tag) {
     d.size = sf::Vector2f{};
-    d.size.value().x =
-        evaluate_expression<double>(ctx, tag.attribute("w").value());
-    d.size.value().y =
-        evaluate_expression<double>(ctx, tag.attribute("h").value());
+    d.size.value().x = evaluate<double>(s, tag.attribute("w").value());
+    d.size.value().y = evaluate<double>(s, tag.attribute("h").value());
   }
 
   if (auto tag = n.child("radius"); tag)
-    d.radius = evaluate_expression<double>(ctx, tag.attribute("value").value());
+    d.radius = evaluate<double>(s, tag.attribute("value").value());
 
-  collect_position(n, ctx, d);
+  collect_position(n, s, d);
 
   if (auto tag = n.child("outline_thickness"); tag)
-    d.outline_thickness =
-        evaluate_expression<double>(ctx, tag.attribute("value").value());
+    d.outline_thickness = evaluate<double>(s, tag.attribute("value").value());
 
-  if (auto c = collect_color(n, ctx, "outline_color"); c)
+  if (auto c = collect_color(n, s, "outline_color"); c)
     d.outline_color = c;
 
-  if (auto c = collect_color(n, ctx, "fill_color"); c)
+  if (auto c = collect_color(n, s, "fill_color"); c)
     d.fill_color = c;
 
   if (auto tag = n.child("scale"); tag)
-    d.scale_x = evaluate_expression<double>(ctx, tag.attribute("x").value());
+    d.scale_x = evaluate<double>(s, tag.attribute("x").value());
 
   if (auto tag = n.child("scale"); tag)
-    d.scale_y = evaluate_expression<double>(ctx, tag.attribute("y").value());
+    d.scale_y = evaluate<double>(s, tag.attribute("y").value());
 
   if (auto att = n.attribute("id"); std::string{att.value()}.size())
     d.id = att.value();
 
   if (auto tag = n.child("fill_texture");
       tag && std::string{tag.attribute("src").value()}.size())
-    d.fill_texture_src =
-        evaluate_expression<std::string>(ctx, tag.attribute("src").value());
+    d.fill_texture_src = evaluate<std::string>(s, tag.attribute("src").value());
 
   if (auto tag = n.child("fill_texture");
       tag && std::string{tag.attribute("id").value()}.size())
-    d.fill_texture_id =
-        evaluate_expression<std::string>(ctx, tag.attribute("id").value());
+    d.fill_texture_id = evaluate<std::string>(s, tag.attribute("id").value());
 
   if (auto tag = n.child("text_outline_thickness"); tag)
     d.text_outline_thickness =
-        evaluate_expression<double>(ctx, tag.attribute("value").value());
+        evaluate<double>(s, tag.attribute("value").value());
 
-  if (auto c = collect_color(n, ctx, "text_outline_color"); c)
+  if (auto c = collect_color(n, s, "text_outline_color"); c)
     d.text_outline_color = c;
 
-  if (auto c = collect_color(n, ctx, "text_fill_color"); c)
+  if (auto c = collect_color(n, s, "text_fill_color"); c)
     d.text_fill_color = c;
 
   if (auto tag = n.child("text_character_size"); tag)
-    d.text_character_size =
-        evaluate_expression<double>(ctx, tag.attribute("value").value());
+    d.text_character_size = evaluate<double>(s, tag.attribute("value").value());
 
   if (auto tag = n.child("text_string"); tag)
-    d.text_string =
-        evaluate_expression<std::string>(ctx, tag.attribute("value").value());
+    d.text_string = evaluate<std::string>(s, tag.attribute("value").value());
 
   if (auto tag = n.child("text_font_id"); tag)
-    d.text_font_id =
-        evaluate_expression<std::string>(ctx, tag.attribute("value").value());
+    d.text_font_id = evaluate<std::string>(s, tag.attribute("value").value());
 
   if (auto tag = n.child("activate_scene"); tag)
     d.scene_to_activate =
-        evaluate_expression<std::string>(ctx, tag.attribute("value").value());
+        evaluate<std::string>(s, tag.attribute("value").value());
 
   if (auto tag = n.child("load_scene"); tag)
     d.scene_to_load_src =
-        evaluate_expression<std::string>(ctx, tag.attribute("src").value());
+        evaluate<std::string>(s, tag.attribute("src").value());
 
   if (auto tag = n.child("load_scene"); tag)
-    d.scene_to_load_id =
-        evaluate_expression<std::string>(ctx, tag.attribute("id").value());
+    d.scene_to_load_id = evaluate<std::string>(s, tag.attribute("id").value());
 
   auto tag = n.child("on_press");
   while (tag) {
-    collect_binding(tag, ctx, d);
+    collect_binding(tag, s, d);
     tag = tag.next_sibling();
   }
 

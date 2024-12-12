@@ -4,24 +4,14 @@
 #include <iostream>
 #include <ranges>
 
+namespace {
+template <typename T> double diff(const T &n, const T &s) {
+  using type = std::chrono::milliseconds;
+  return std::chrono::duration_cast<type>(n - s).count();
+}
+} // namespace
+
 namespace fw {
-unsigned add_routine(context_t *ctx, std::function<void(context_t *)> f) {
-  ctx->routines.push_back({++ctx->routine_id_, f});
-  return ctx->routine_id_;
-}
-
-void remove_routine(context_t *ctx, unsigned id) {
-  for (auto it = ctx->routines.begin(); it != ctx->routines.end(); ++it)
-    if (it->first == id) {
-      ctx->routines.erase(it);
-      return;
-    }
-}
-
-void add_command(context_t *ctx, std::function<void(context_t *)> f) {
-  ctx->commands.push_back(f);
-}
-
 void cd_to_binary_dir(context_t *ctx, const std::string &p) {
   if (!std::filesystem::exists(p))
     return;
@@ -33,37 +23,37 @@ void cd_to_binary_dir(context_t *ctx, const std::string &p) {
 void update(context_t *ctx) {
   if (!ctx)
     return;
-  while (ctx->window.pollEvent(ctx->event))
-    for (const auto &cb : ctx->event_cb_map)
-      if (cb.first == ctx->event.type)
-        if (cb.second)
-          cb.second(ctx);
 
-  if (auto now = std::chrono::steady_clock::now();
-      std::chrono::duration_cast<std::chrono::milliseconds>(now -
-                                                            ctx->frame_start)
-          .count() < ctx->frame_time)
+  scene_t *s = ctx->active_scene;
+  if (!s)
     return;
-  else
-    ctx->frame_start = now;
+
+  while (ctx->window.pollEvent(s->event))
+    for (const auto &cb : s->event_cb_map)
+      if (cb.first == s->event.type)
+        if (cb.second)
+          cb.second(s);
+
+  auto now = std::chrono::steady_clock::now();
+  if (diff(now, s->last_frame_start) < s->frame_time)
+    return;
+  s->last_frame_start = now;
 
   auto ipos = sf::Mouse::getPosition(ctx->window);
-  ctx->last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
+  s->last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
 
   update_data_t d{};
-  d.window = &ctx->window;
-  d.last_mouse_pos = &ctx->last_mouse_pos;
+  d.window = s->window;
+  d.last_mouse_pos = &s->last_mouse_pos;
 
-  while (ctx->commands.size()) {
-    ctx->commands.front()(ctx);
-    ctx->commands.pop_front();
+  while (s->commands.size()) {
+    s->commands.front()(s);
+    s->commands.pop_front();
   }
 
-  for (const auto &r : ctx->routines)
-    r.second(ctx);
-
-  if (ctx->active_scene)
-    ctx->active_scene->update(&d);
+  for (const auto &r : s->routines)
+    r.functor(s);
+  s->root->update(&d);
 }
 
 void render(context_t *ctx) {
@@ -71,51 +61,69 @@ void render(context_t *ctx) {
     return;
   ctx->window.clear();
   if (ctx->active_scene)
-    ctx->window.draw(*ctx->active_scene);
+    ctx->window.draw(*ctx->active_scene->root);
   ctx->window.display();
 }
 
-bool activate_scene(context_t *ctx, const std::string &s) {
+void activate_scene(context_t *ctx, const std::string &s) {
   if (!ctx)
-    return false;
+    throw std::runtime_error{
+        "Scene activation failed: nullptr passed as context!"};
   if (!ctx->scene_map.contains(s))
-    return false;
-  ctx->active_scene = ctx->scene_map.at(s).get();
-  return true;
+    throw std::runtime_error{
+        "Scene activation failed: The requested scene does not exist!"};
+  ctx->active_scene = &ctx->scene_map.at(s);
 }
 
-bool load_scene(context_t *ctx, const std::string &xml, std::string id) {
-  auto scene = build_scene(ctx, xml);
-  if (scene) {
-    if (ctx->scene_map.contains(id))
-      ctx->scene_map.erase(id);
-    ctx->scene_map[id] = std::move(scene);
+void remove_scene(context_t *ctx, const std::string &id,
+                  bool silent_fail = false) {
+  if (ctx->scene_map.contains(id)) {
+    ctx->scene_map.erase(id);
+    return;
   }
-  return true;
+  if (!silent_fail)
+    throw std::runtime_error{
+        "A scene with the specified ID: '" + id +
+        "' does not exist, yet its removal was requested!"};
 }
 
-template <>
-std::optional<std::string> fetch_from_register(const context_t *c,
-                                               const std::string &id) {
-  if (!c->string_register.contains(id))
-    return {};
-  return c->string_register.at(id);
+scene_t create_scene_skeleton(context_t *ctx) {
+  scene_t s{};
+  s.event_cb_map[sf::Event::Closed] = [](auto *p) { p->window->close(); };
+  s.scene_map = &ctx->scene_map;
+  s.global_registers = &ctx->global_registers;
+  s.current_working_dir = &ctx->current_working_dir;
+  s.window = &ctx->window;
+  return s;
 }
 
-bool create_window_from_registers(context_t *ctx) {
-  if (!ctx->number_register.size() && !ctx->string_register.size())
-    return false;
-  sf::VideoMode m{640, 480};
-  std::string t{};
+void load_scene(context_t *ctx, const std::string &xml, std::string id,
+                bool overwrite) {
+  if (ctx->scene_map.contains(id)) {
+    if (!overwrite)
+      throw std::runtime_error{
+          "Scene loading from the file: '" + xml +
+          "' succeeded,"
+          " but the overwrite parameter was set to false, yet the ID: '" +
+          id + "' is not unique!"};
+    remove_scene(ctx, id);
+  }
+  build_scene(ctx, xml, id);
+}
 
-  if (auto width = fetch_from_register<unsigned>(ctx, "window_width"); width)
-    m.width = width.value();
-  if (auto height = fetch_from_register<unsigned>(ctx, "window_height"); height)
-    m.height = height.value();
-  if (auto title = fetch_from_register<std::string>(ctx, "window_title"); title)
-    t = title.value();
+void create_window_from_registers(context_t *ctx) {
+  auto nreg = &ctx->global_registers.number;
+  auto sreg = &ctx->global_registers.string;
 
-  ctx->window.create(m, t);
-  return true;
+  try {
+    std::string t{sreg->get_value("window_title")};
+    sf::VideoMode m{nreg->get_value<unsigned>("window_width"),
+                    nreg->get_value<unsigned>("window_height")};
+
+    ctx->window.create(m, t);
+  } catch (...) {
+    std::cerr << "Failed to fetch window parameters!" << std::endl;
+    throw;
+  }
 }
 } // namespace fw

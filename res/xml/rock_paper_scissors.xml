@@ -1,3 +1,9 @@
+<texture id="rock_icon" src="./img/rock.jpeg"/>
+<texture id="paper_icon" src="./img/paper.jpeg"/>
+<texture id="scissors_icon" src="./img/scissors.jpeg"/>
+
+<font id="AnonymousPro" src="./font/AnonymousPro-Regular.ttf"/>
+
 <root>
 	<button type="sprite">
 		<position x="10" y="150"/>

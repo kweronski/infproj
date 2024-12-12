@@ -1,3 +1,5 @@
+<font id="AnonymousPro" src="./font/AnonymousPro-Regular.ttf"/>
+
 <root>
 	<button type="rectangle">
 		<position x="__n:window_width - __n:menu_button_width - __n:menu_button_padding / 2"

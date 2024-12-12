@@ -38,7 +38,5 @@ struct node_data_t {
 
 struct context_t;
 
-std::unique_ptr<node_t> build_scene(context_t *, const std::string &);
-
-node_data_t collect_node_data(const pugi::xml_node &n, context_t *ctx);
+void build_scene(context_t *, const std::string &xml, const std::string &id);
 }

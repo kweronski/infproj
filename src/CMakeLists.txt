@@ -2,6 +2,7 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 
 if (DEBUG)
 	add_compile_options(-O0 -g)
+	message(STATUS "Setup for debugging")
 endif()
 
 # Find the required dependencies
@@ -13,10 +14,8 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
 
 add_library(framework
-	register_builder.cpp
 	button_builder.cpp
 	node_builder.cpp
-	evaluate.cpp
 	context.cpp
 	builder.cpp
 	node.cpp
@@ -41,8 +40,3 @@ set_target_properties(run PROPERTIES
 target_link_libraries(run PRIVATE
 	framework
 )
-
-option(DEMO "Build demo code" ON)
-if (DEMO)
-	add_subdirectory(demo)
-endif()

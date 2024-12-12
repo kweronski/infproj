@@ -57,35 +57,5 @@ node_t *node_t::parent() const { return this->parent_; }
 
 void node_t::parent(node_t *p) { this->parent_ = p; }
 
-void node_t::id(std::string i) { id_ = i; }
-
-const std::string &node_t::id() const { return id_; }
-
-node_t *breadth_search(node_t *root, const std::string &id) {
-  std::list<node_t *> c{root};
-  while (c.size()) {
-    auto a = c.front();
-    for (auto &n : a->nodes_)
-      c.push_back(n.get());
-    if (a->id() == id)
-      return a;
-    c.pop_front();
-  }
-  return nullptr;
-}
-
-node_t *depth_search(node_t *root, const std::string &id) {
-  std::list<node_t *> c{root};
-  while (c.size()) {
-    auto a = c.front();
-    for (auto &n : a->nodes_)
-      c.push_front(n.get());
-    if (a->id() == id)
-      return a;
-    c.pop_back();
-  }
-  return nullptr;
-}
-
 void node_t::move(float, float) {}
 } // namespace fw

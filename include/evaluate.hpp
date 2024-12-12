@@ -1,50 +1,63 @@
 #pragma once
 
-#include "context.hpp"
-#include <iostream>
-
-#ifndef EXPRTK_HEADER_INCLUDED
-#define EXPRTK_HEADER_INCLUDED
 #include "exprtk.hpp"
-#endif
+#include "register.hpp"
+#include "scene.hpp"
+#include <concepts>
+#include <iostream>
+#include <ranges>
 
 namespace fw {
+// This function replaces variable names with their values
+// that are stored within a register
 template <typename T>
-T evaluate_expression(context_t *ctx, const std::string &expr) {
-  static exprtk::parser<double> parser{};
-  auto split = std::ranges::views::split(expr, ' ');
-  const std::string numr{"__n:"}; // number identifier
+std::string replace(const scene_t *scene, const std::string &keyword,
+                    const std::string &input) {
+
+  auto split = std::ranges::views::split(input, ' ');
   std::list<std::string> replaced{};
   std::string parsed{};
 
   for (const auto &f : split) {
     std::string s{f.begin(), f.end()};
-    if (s.find(numr) == 0) {
-      auto name = s.substr(numr.size(), s.size() - numr.size());
+    if (s.find(keyword) == 0) {
+      auto name = s.substr(keyword.size(), s.size() - keyword.size());
+      T val{};
+
       try {
-        auto val = ctx->number_register.at(name);
-        replaced.push_back(std::to_string(val));
+        val = get_value_from_register<T>(scene, name);
       } catch (const std::exception &e) {
-        std::cerr << "Fetching number at: " << name << " failed: " << e.what()
-                  << std::endl;
+        throw std::runtime_error{"Trying to replace '" + name +
+                                 "' with its value failed!"};
       }
+
+      if constexpr (std::same_as<std::string, T>)
+        replaced.push_back(val);
+      else
+        replaced.push_back(std::to_string(val));
     } else
       replaced.push_back(s);
   }
+
   for (const auto &f : replaced)
     parsed += f + " ";
   parsed.pop_back();
 
-  exprtk::expression<double> eval{};
-  double value{};
-  if (parser.compile(parsed, eval))
-    value = eval.value();
-  else
-    throw std::runtime_error{"Error in expression: '" + parsed + "'"};
+  return parsed;
+}
 
-  return static_cast<T>(value);
+template <typename T> T evaluate(const scene_t *s, const std::string &input) {
+  static exprtk::parser<double> parser{};
+  exprtk::expression<double> eval{};
+
+  if (auto str = replace<T>(s, "__n:", input); !parser.compile(str, eval))
+    throw std::runtime_error{"Error in expression: '" + str + "'"};
+
+  return static_cast<T>(eval.value());
 }
 
 template <>
-std::string evaluate_expression(context_t *ctx, const std::string &);
+inline std::string evaluate(const scene_t *s, const std::string &input) {
+  return replace<std::string>(s, "__s:", input);
+}
 } // namespace fw

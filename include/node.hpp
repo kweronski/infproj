@@ -42,12 +42,6 @@ public:
   node_t *parent() const;
   void parent(node_t *);
 
-  void id(std::string);
-  const std::string &id() const;
-
-  friend node_t *breadth_search(node_t *, const std::string &id);
-  friend node_t *depth_search(node_t *, const std::string &id);
-
   virtual void move(float, float);
   virtual std::optional<sf::Rect<float>> bounds() const { return {}; }
 
@@ -56,13 +50,18 @@ private:
   bool active_{true};
   bool visible_{true};
   node_t *parent_{nullptr};
-  std::string id_;
 };
 
 template <typename T> class basic_node_t : public node_t {
 public:
   void draw_current(sf::RenderTarget &r, sf::RenderStates s) const override {
     r.draw(shape_, s);
+  }
+
+  void move(float x, float y) override { shape_.move(x, y); }
+
+  std::optional<sf::Rect<float>> bounds() const override {
+    return shape_.getGlobalBounds();
   }
 
   const T *shape() const { return &shape_; }
