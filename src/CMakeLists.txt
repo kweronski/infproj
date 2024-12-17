@@ -32,6 +32,8 @@ target_link_libraries(framework PUBLIC
 )
 
 add_executable(run main.cpp
+	cfusion.cpp
+	rps.cpp
 )
 
 set_target_properties(run PROPERTIES

@@ -3,8 +3,6 @@
 
 <font id="AnonymousPro" src="./font/AnonymousPro-Regular.ttf"/>
 
-<scene id="rock_paper_scissors" src="./xml/rock_paper_scissors.xml"/>
-
 <root>
 	<nreg id="cursor_mm" value="5"/>
 

@@ -58,4 +58,6 @@ node_t *node_t::parent() const { return this->parent_; }
 void node_t::parent(node_t *p) { this->parent_ = p; }
 
 void node_t::move(float, float) {}
+
+void node_t::clear() { nodes_.clear(); }
 } // namespace fw

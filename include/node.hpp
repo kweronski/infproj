@@ -34,6 +34,7 @@ public:
 
   void attach(ptr_t);
   ptr_t detach(node_t *);
+  void clear();
 
   void show();
   void hide();

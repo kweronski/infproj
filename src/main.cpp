@@ -1,14 +1,9 @@
-#include "context.hpp"
-#include <iostream>
+#include "cfusion.hpp"
 
 int main(int, char **argv) {
   try {
     fw::context_t ctx{};
-    fw::cd_to_binary_dir(&ctx, argv[0]);
-
-    fw::load_scene(&ctx, "./xml/main_menu.xml", "main_menu");
-    fw::activate_scene(&ctx, "main_menu");
-    create_window_from_registers(&ctx);
+    cf::initialize(&ctx, argv[0]);
 
     while (ctx.window.isOpen()) {
       fw::update(&ctx);
