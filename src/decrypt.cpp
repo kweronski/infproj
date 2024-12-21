@@ -135,6 +135,23 @@ void initialize_indicators(fw::scene_t *s, float barrier) {
   tl->shape()->setPosition(sf::Vector2f{ww - 200, barrier});
   s->vip_nodes["tl"] = tl;
 
+  fw::add_routine(s, [](auto *ptr) {
+    auto dc = dynamic_cast<cf::decrypt_t *>(ptr->root.get());
+    static auto ts = std::chrono::steady_clock::now();
+    auto tl =
+        dynamic_cast<fw::basic_node_t<sf::Text> *>(ptr->vip_nodes.at("tl"));
+
+    if (std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::steady_clock::now() - ts)
+            .count() < 1)
+      return;
+
+    ts = std::chrono::steady_clock::now();
+    if (dc->time_left > 0)
+      --dc->time_left;
+    tl->shape()->setString("TL: " + std::to_string(dc->time_left));
+  });
+
   auto hp = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{hp});
 
@@ -174,7 +191,7 @@ void initialize_buttons(fw::scene_t *s, fw::context_t *ctx) {
       [](auto *ptr) { ptr->shape()->setOutlineColor(sf::Color::White); });
 
   b->add_click_cb([s, ctx](auto *) {
-    fw::add_command(&ctx->scene_map.at("selection_menu"), [ctx](auto *scene) {
+    fw::add_command(&ctx->scene_map.at("selection_menu"), [ctx](auto *) {
       cf::initialize_round(&ctx->scene_map.at("decrypt_mini_game"), ctx);
     });
     fw::activate_scene(ctx, "selection_menu");
