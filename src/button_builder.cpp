@@ -202,7 +202,8 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
         e(p, ctx, s);
     });
   }
-  if (auto tag = n.child("on_touch"); tag && tag.first_child()) {
+  for (auto tag = n.child("on_touch"); tag && tag.first_child();
+       tag = tag.next_sibling("on_touch")) {
     std::string target = tag.attribute("id").value();
     if (!target.size())
       throw std::runtime_error{

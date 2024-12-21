@@ -37,7 +37,6 @@ void update(context_t *ctx) {
   auto now = std::chrono::steady_clock::now();
   if (diff(now, s->last_frame_start) < s->frame_time)
     return;
-  s->last_frame_start = now;
 
   auto ipos = sf::Mouse::getPosition(ctx->window);
   s->last_mouse_pos = sf::Vector2f{(float)ipos.x, (float)ipos.y};
@@ -51,11 +50,13 @@ void update(context_t *ctx) {
     s->commands.pop_front();
   }
 
+  for (const auto &r : s->routines)
+    r.functor(s);
+
   if (s->root)
     s->root->update(&d);
 
-  for (const auto &r : s->routines)
-    r.functor(s);
+  s->last_frame_start = now;
 }
 
 void render(context_t *ctx) {

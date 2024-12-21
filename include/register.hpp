@@ -48,6 +48,8 @@ template <typename Id, typename T> struct register_t {
           id + "'"};
     }
   }
+
+  void remove(const Id &id) { data.erase(id); }
 };
 
 struct register_pool_t {

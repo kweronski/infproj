@@ -33,6 +33,7 @@ target_link_libraries(framework PUBLIC
 
 add_executable(run main.cpp
 	cfusion.cpp
+	decrypt.cpp
 	rps.cpp
 )
 

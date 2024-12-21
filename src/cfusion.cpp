@@ -9,6 +9,7 @@ void initialize(::fw::context_t *ctx, const char *wdir) {
   create_window_from_registers(ctx);
 
   /* ADD YOUR CUSTOM SCENE BUILDING FUNCTION HERE */
+  initialize_decrypt(ctx);
   initialize_rps(ctx);
 }
 } // namespace cf
