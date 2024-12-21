@@ -15,7 +15,13 @@ make -C build
 
 # Where to start?
 
-Take a look at the src/demo directory :)
 All the deps along with the binaries can be found in ./build/infproj
 
-If you do not want the demo code to be built add -DDEMO=OFF to cmake.
+To integrate your own mini-game, simply add your custom initialization
+function to the main initialization function located in src/cfusion.cpp
+
+It is recommended to use the create\_scene\_skeleton function
+to initialize your scene's pointers.
+
+A good demonstration of creating the basics for a mini-game
+can be found in src/rps.cpp in the initialize\_rps function.
