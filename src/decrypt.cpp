@@ -119,11 +119,10 @@ void initialize_panels(fw::scene_t *s, float barrier) {
   create_panel(s, &panel);
 }
 
-void initialize_indicators(fw::scene_t *s, float barrier) {
+void initialize_countdown(fw::scene_t *s, float barrier) {
   auto ww = fw::get_value_from_register<float>(s, "window_width");
   auto p = dynamic_cast<cf::decrypt_t *>(s->root.get());
   p->time_left = 60;
-  p->health = 4;
 
   auto tl = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{tl});
@@ -137,20 +136,28 @@ void initialize_indicators(fw::scene_t *s, float barrier) {
 
   fw::add_routine(s, [](auto *ptr) {
     auto dc = dynamic_cast<cf::decrypt_t *>(ptr->root.get());
-    static auto ts = std::chrono::steady_clock::now();
+    if (dc->tld_tracker == std::chrono::time_point<std::chrono::steady_clock>{})
+      dc->tld_tracker = std::chrono::steady_clock::now();
+
     auto tl =
         dynamic_cast<fw::basic_node_t<sf::Text> *>(ptr->vip_nodes.at("tl"));
 
-    if (std::chrono::duration_cast<std::chrono::seconds>(
-            std::chrono::steady_clock::now() - ts)
-            .count() < 1)
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - dc->tld_tracker)
+            .count() < 1000)
       return;
 
-    ts = std::chrono::steady_clock::now();
+    dc->tld_tracker = std::chrono::steady_clock::now();
     if (dc->time_left > 0)
       --dc->time_left;
     tl->shape()->setString("TL: " + std::to_string(dc->time_left));
   });
+}
+
+void initialize_hp(fw::scene_t *s, float barrier) {
+  auto ww = fw::get_value_from_register<float>(s, "window_width");
+  auto p = dynamic_cast<cf::decrypt_t *>(s->root.get());
+  p->health = 4;
 
   auto hp = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{hp});
@@ -161,6 +168,11 @@ void initialize_indicators(fw::scene_t *s, float barrier) {
   hp->shape()->setString("HP: " + std::to_string(p->health));
   hp->shape()->setPosition(sf::Vector2f{ww - 200, barrier + 60});
   s->vip_nodes["hp"] = hp;
+}
+
+void initialize_indicators(fw::scene_t *s, float barrier) {
+  initialize_countdown(s, barrier);
+  initialize_hp(s, barrier);
 }
 } // namespace
 
@@ -201,6 +213,7 @@ void initialize_buttons(fw::scene_t *s, fw::context_t *ctx) {
 namespace cf {
 void initialize_round(fw::scene_t *s, fw::context_t *ctx) {
   s->root = std::unique_ptr<fw::node_t>{new decrypt_t{}};
+  fw::clear_routines(s);
   constexpr float barrier{840};
 
   initialize_indicators(s, barrier);

@@ -37,6 +37,7 @@ private:
 };
 
 struct decrypt_t : public fw::node_t {
+  std::chrono::time_point<std::chrono::steady_clock> tld_tracker{};
   std::string key{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
   std::mt19937 rng{std::random_device{}()};
   unsigned health{}, time_left{};

@@ -68,6 +68,7 @@ inline std::string get_value_from_register(const scene_t *s,
 
 unsigned add_routine(scene_t *, std::function<void(scene_t *)>);
 void remove_routine(scene_t *, unsigned);
+inline void clear_routines(scene_t *s) { s->routines.clear(); }
 
 void add_command(scene_t *, std::function<void(scene_t *)>);
 } // namespace fw
