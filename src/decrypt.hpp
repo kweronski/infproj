@@ -8,7 +8,7 @@
 namespace cf {
 class key_t : public fw::button_t<sf::RectangleShape> {
 public:
-  key_t(char k, char v) : k_{k}, v_{v}, t_{} {}
+  key_t(char k, char v) : k_{k}, v_{v} {}
 
   void update_string() {
     this->label()->setString(std::string{k_} + std::string{"="} +
@@ -28,12 +28,8 @@ public:
     update_string();
   }
 
-  float time() const { return t_; }
-  void time(float t) { t_ = t; }
-
 private:
   char k_, v_;
-  float t_;
 };
 
 struct decrypt_t : public fw::node_t {
@@ -42,13 +38,11 @@ struct decrypt_t : public fw::node_t {
   std::mt19937 rng{std::random_device{}()};
   unsigned health{}, time_left{};
   std::string plaintext{}, encrypted{};
+  std::list<key_t *> keys{};
+  std::list<char> collected{};
 };
 
 void initialize_decrypt(fw::context_t *ctx);
-
-void generate_key(decrypt_t *p);
-
-void initialize_round(fw::scene_t *, fw::context_t *);
 
 inline std::string encrypt(const std::string &key, const std::string msg) {
   const std::string alph{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
@@ -59,6 +53,4 @@ inline std::string encrypt(const std::string &key, const std::string msg) {
         enc += key[j];
   return enc;
 }
-
-std::string pick_word();
 } // namespace cf

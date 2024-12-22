@@ -38,12 +38,12 @@ node_t::ptr_t node_t::detach(node_t *id) {
   for (; it != nodes_.end(); ++it) {
     if (it->get() == id) {
       mv = std::move(*it);
+      mv->parent(nullptr);
       break;
     }
   }
   if (it != nodes_.end())
     nodes_.erase(it);
-  mv->parent(nullptr);
   return mv;
 }
 
