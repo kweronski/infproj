@@ -113,7 +113,6 @@ void initialize_rps(fw::context_t *ctx) {
   auto update_round = [ctx](auto *rps) {
     auto s = ctx->active_scene;
     s->vip_nodes.at("vs")->show();
-    std::this_thread::sleep_for(std::chrono::milliseconds{250});
     auto rnum = std::to_string(++rps->round);
     dynamic_cast<fw::basic_node_t<sf::Text> *>(s->vip_nodes.at("round_counter"))
         ->shape()

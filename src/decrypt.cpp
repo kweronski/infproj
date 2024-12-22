@@ -117,6 +117,24 @@ void initialize_panels(fw::scene_t *s, float barrier) {
   panel.fill = sf::Color{255, 165, 0}, panel.id_prefix = "plain";
   panel.visible = false;
   create_panel(s, &panel);
+
+  for (const auto &l : alph) {
+    const auto kid = std::string{"key"} + p->key[alph.find(l)];
+    const auto id = std::string{"letter"} + l;
+    fw::add_routine(s, [id, kid](auto *scene) {
+      auto k = dynamic_cast<fw::button_t<sf::RectangleShape> *>(
+          scene->vip_nodes.at(kid));
+      auto l = dynamic_cast<fw::button_t<sf::RectangleShape> *>(
+          scene->vip_nodes.at(id));
+      if (!k->visible())
+        return;
+      if (!l->clicked())
+        return;
+      dynamic_cast<fw::basic_node_t<sf::Text> *>(scene->vip_nodes.at("hp"))
+          ->shape()
+          ->setString("HP: CLICKED!");
+    });
+  }
 }
 
 void initialize_countdown(fw::scene_t *s, float barrier) {

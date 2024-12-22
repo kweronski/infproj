@@ -1,6 +1,7 @@
 #pragma once
 
 #include "node.hpp"
+#include <chrono>
 #include <functional>
 
 namespace fw {
@@ -36,7 +37,10 @@ public:
       this->on_unhover();
     }
 
-    if (clicked_ && !click_tracker_) {
+    if (clicked_ && !click_tracker_ &&
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - last_click_) >= ctimeout_) {
+      last_click_ = std::chrono::steady_clock::now();
       click_tracker_ = true;
       this->on_click();
     }
@@ -53,6 +57,8 @@ public:
   std::optional<sf::Rect<float>> bounds() const override {
     return shape_.getGlobalBounds();
   }
+
+  void set_click_timeout(std::chrono::milliseconds t) { ctimeout_ = t; }
 
 private:
   bool remove_cb(unsigned id, std::string type) {
@@ -180,6 +186,9 @@ private:
   S shape_{};
 
   std::size_t cb_id_{};
+
+  std::chrono::time_point<std::chrono::steady_clock> last_click_{};
+  std::chrono::milliseconds ctimeout_{250};
 };
 
 } // namespace fw
