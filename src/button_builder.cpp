@@ -61,14 +61,17 @@ auto configure_common(const pugi::xml_node &n, scene_t *s) {
     actions.push_back([d](auto *, auto *ctx, auto *) { ctx->window.close(); });
 
   if (d.bindings.size()) {
-    actions.push_back([d](auto *ptr, auto *, auto *) {
-      ptr->add_press_cb([d](auto *ptr) {
+    actions.push_back([d](auto *ptr, auto *ctx, auto *) {
+      ptr->add_press_cb([d, ctx](auto *ptr) {
         for (const auto &b : d.bindings) {
           if (sf::Keyboard::isKeyPressed(b.key)) {
             if (b.axis == press_binding_t::axis_t::x)
               ptr->move(b.move, 0);
             else
               ptr->move(0, b.move);
+            ctx->global_registers.number.add(
+                "update_settings", 1); // TEMPORARY WORKAROUND to refresh
+                                       // settings variables in mini games
           }
         }
       });
