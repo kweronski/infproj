@@ -205,6 +205,21 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
         e(p, ctx, s);
     });
   }
+
+  struct sreg_t {
+    std::string id;
+    std::string val;
+    bool global{0};
+  };
+  struct nreg_t {
+    std::string id;
+    double val;
+    bool global{0};
+  };
+
+  std::unordered_map<std::string, std::list<sreg_t>> sregs{};
+  std::unordered_map<std::string, std::list<nreg_t>> nregs{};
+
   for (auto tag = n.child("on_touch"); tag && tag.first_child();
        tag = tag.next_sibling("on_touch")) {
     std::string target = tag.attribute("id").value();
@@ -212,23 +227,12 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
       throw std::runtime_error{
           "Invalid use of on_touch tag. A target id is required!"};
 
-    struct sreg_t {
-      std::string id;
-      std::string val;
-      bool global{0};
-    };
-    struct nreg_t {
-      std::string id;
-      double val;
-      bool global{0};
-    };
-
-    std::list<sreg_t> sregs{};
-    std::list<nreg_t> nregs{};
+    sregs[target] = {};
+    nregs[target] = {};
 
     auto t = tag.child("sreg");
     while (t) {
-      sregs.push_back(
+      sregs.at(target).push_back(
           {.id = t.attribute("id").value(),
            .val = t.attribute("value").value(),
            .global = t.attribute("type")
@@ -241,7 +245,7 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
 
     t = tag.child("nreg");
     while (t) {
-      nregs.push_back(
+      nregs.at(target).push_back(
           {.id = t.attribute("id").value(),
            .val = std::stod(std::string{t.attribute("value").value()}),
            .global = t.attribute("type")
@@ -261,7 +265,7 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
               e(ptr, ctx, s);
 
             static pugi::xml_document doc{};
-            for (auto &r : sregs) {
+            for (auto &r : sregs.at(target)) {
               auto n = doc.append_child();
               n.set_name("sreg");
               auto attr = n.append_attribute("id");
@@ -275,7 +279,7 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
               doc.remove_child(n);
             }
 
-            for (auto &r : nregs) {
+            for (auto &r : nregs.at(target)) {
               auto n = doc.append_child();
               n.set_name("nreg");
               auto attr = n.append_attribute("id");
