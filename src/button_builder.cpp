@@ -8,6 +8,9 @@ namespace fw {
 node_data_t collect_node_data(const pugi::xml_node &n, scene_t *);
 }
 
+std::unique_ptr<fw::node_t> build_register(const pugi::xml_node &n,
+                                           fw::context_t *c, fw::scene_t *s);
+
 namespace {
 using namespace fw;
 
@@ -69,9 +72,6 @@ auto configure_common(const pugi::xml_node &n, scene_t *s) {
               ptr->move(b.move, 0);
             else
               ptr->move(0, b.move);
-            ctx->global_registers.number.add(
-                "update_settings", 1); // TEMPORARY WORKAROUND to refresh
-                                       // settings variables in mini games
           }
         }
       });
@@ -210,15 +210,85 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
     std::string target = tag.attribute("id").value();
     if (!target.size())
       throw std::runtime_error{
-          "Invalid use of on_touch tag. An id is required!"};
+          "Invalid use of on_touch tag. A target id is required!"};
+
+    struct sreg_t {
+      std::string id;
+      std::string val;
+      bool global{0};
+    };
+    struct nreg_t {
+      std::string id;
+      double val;
+      bool global{0};
+    };
+
+    std::list<sreg_t> sregs{};
+    std::list<nreg_t> nregs{};
+
+    auto t = tag.child("sreg");
+    while (t) {
+      sregs.push_back(
+          {.id = t.attribute("id").value(),
+           .val = t.attribute("value").value(),
+           .global = t.attribute("type")
+                         ? t.attribute("type").value() == std::string{"global"}
+                               ? true
+                               : false
+                         : false});
+      t = t.next_sibling();
+    }
+
+    t = tag.child("nreg");
+    while (t) {
+      nregs.push_back(
+          {.id = t.attribute("id").value(),
+           .val = std::stod(std::string{t.attribute("value").value()}),
+           .global = t.attribute("type")
+                         ? t.attribute("type").value() == std::string{"global"}
+                               ? true
+                               : false
+                         : false});
+      t = t.next_sibling();
+    }
 
     auto a = configure_button<T>(tag, s);
-    add_routine(s, [a, ctx, ptr, target](auto *s) {
+    add_routine(s, [a, ctx, ptr, target, sregs, nregs](auto *s) {
       if (auto tb = s->vip_nodes.at(target)->bounds(); tb.has_value()) {
         if (auto pb = ptr->bounds(); pb.has_value())
-          if (tb.value().intersects(pb.value()))
+          if (tb.value().intersects(pb.value())) {
             for (const auto &e : a)
               e(ptr, ctx, s);
+
+            static pugi::xml_document doc{};
+            for (auto &r : sregs) {
+              auto n = doc.append_child();
+              n.set_name("sreg");
+              auto attr = n.append_attribute("id");
+              attr.set_value(r.id.c_str());
+              attr = n.append_attribute("value");
+              attr.set_value(r.val.c_str());
+              attr = n.append_attribute("type");
+              attr.set_value(r.global ? "global" : "");
+
+              build_register(n, ctx, s);
+              doc.remove_child(n);
+            }
+
+            for (auto &r : nregs) {
+              auto n = doc.append_child();
+              n.set_name("nreg");
+              auto attr = n.append_attribute("id");
+              attr.set_value(r.id.c_str());
+              attr = n.append_attribute("value");
+              attr.set_value(std::to_string(r.val).c_str());
+              attr = n.append_attribute("type");
+              attr.set_value(r.global ? "global" : "");
+
+              build_register(n, ctx, s);
+              doc.remove_child(n);
+            }
+          }
       }
     });
   }

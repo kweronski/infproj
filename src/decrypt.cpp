@@ -329,8 +329,8 @@ void initialize_countdown(fw::scene_t *s, float barrier) {
 
   fw::add_routine(s, [](auto *ptr) {
     if (ptr->global_registers->number.template get_value<bool>(
-            "update_settings")) {
-      ptr->global_registers->number.add("update_settings", 0);
+            "dec_update_settings")) {
+      ptr->global_registers->number.add("dec_update_settings", 0);
       auto p = dynamic_cast<cf::decrypt_t *>(ptr->root.get());
       p->time_left = fw::get_value_from_register<float>(ptr, "dec_cd");
       p->health = fw::get_value_from_register<float>(ptr, "dec_hp");

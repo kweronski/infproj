@@ -53,14 +53,25 @@ void write_to_register(const pugi::xml_node &n, fw::scene_t *s,
   std::cout << "\t" << "added {" << n.attribute("id").value() << ", "
             << evaluated << "} to string register" << std::endl;
 }
+} // namespace
 
 std::unique_ptr<fw::node_t> build_register(const pugi::xml_node &n,
-                                           fw::context_t *, fw::scene_t *s) {
-  write_to_register(n, s, &s->local_registers.string);
-  write_to_register(n, s, &s->local_registers.number);
+                                           fw::context_t *c, fw::scene_t *s) {
+  if (std::string{n.name()} != "sreg" && std::string{n.name()} != "nreg")
+    return {};
+
+  if (auto a = n.attribute("type"); a && std::string{a.value()} == "global") {
+    write_to_register(n, s, &c->global_registers.number);
+    write_to_register(n, s, &c->global_registers.string);
+  } else {
+    write_to_register(n, s, &s->local_registers.string);
+    write_to_register(n, s, &s->local_registers.number);
+  }
+
   return {};
 }
 
+namespace {
 template <typename D>
 void update_global_registers(fw::context_t *ctx, fw::scene_t *s, const D &doc) {
   for (auto c = doc->first_child(); c; c = c.next_sibling()) {
