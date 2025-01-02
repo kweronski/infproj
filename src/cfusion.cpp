@@ -88,12 +88,21 @@ void post_process_settings_menu(fw::context_t *ctx) {
   add_slider<int>(ctx, &slider_data);
 
   slider_data.label = "Decrypt countdown time: ";
-  slider_data.y += (slider_data.h + 10) * 1;
+  slider_data.y += (slider_data.h + 10);
   slider_data.variable = "dec_cd";
   slider_data.min = 30;
   slider_data.max = 300;
   slider_data.init = 120;
   slider_data.inc = 10;
+  add_slider<int>(ctx, &slider_data);
+
+  slider_data.label = "RPS move storage: ";
+  slider_data.y += (slider_data.h + 10);
+  slider_data.variable = "rps_move_storage";
+  slider_data.min = 5;
+  slider_data.max = 100;
+  slider_data.init = 20;
+  slider_data.inc = 5;
   add_slider<int>(ctx, &slider_data);
 }
 } // namespace cf

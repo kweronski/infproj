@@ -18,7 +18,7 @@ struct rps_t : public ::fw::node_t {
   };
 
   std::mt19937 rng{std::random_device{}()};
-  std::array<move_t, 20> recent_moves{};
+  std::vector<move_t> recent_moves{};
   long long unsigned round{1};
   long long unsigned score{0};
   long long unsigned aiscore{0};
