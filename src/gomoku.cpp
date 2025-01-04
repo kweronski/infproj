@@ -30,11 +30,14 @@ void initialize_gomoku(fw::context_t *ctx) {
   auto rootptr = new gomoku_root_t{};
   s.root = std::unique_ptr<::fw::node_t>{rootptr};
 
-  auto find_button_nr = [ww, wh](const sf::Vector2i pos) {
-    int x = (pos.x - ww * 0.289) / (wh / 20.f);
-    int y = (pos.y - wh * 0.125) / (wh / 20.f);
-    if ((pos.x > ww * 0.289 + (wh / 20.f) * 15) || (pos.x < ww * 0.289) ||
-        (pos.y < wh * 0.125) || (pos.y > wh * 0.125 + (wh / 20.f) * 15))
+  const float offset_x = ww * 0.289; // BOARD_X
+  const float offset_y = wh * 0.125; // BOARD_Y
+
+  auto find_button_nr = [ww, wh, offset_x, offset_y](const sf::Vector2i pos) {
+    int x = (pos.x - offset_x) / (wh / 20.f);
+    int y = (pos.y - offset_y) / (wh / 20.f);
+    if ((pos.x > offset_x + (wh / 20.f) * 15) || (pos.x < offset_x) ||
+        (pos.y < offset_y) || (pos.y > offset_y + (wh / 20.f) * 15))
       return -1;
     return y * 15 + x;
   };
@@ -87,15 +90,50 @@ void initialize_gomoku(fw::context_t *ctx) {
     s->vip_nodes.at("reset_l")->hide();
   };
 
-  auto interact = [evaluate_win, rootptr, ctx, ww, wh](int i = -1) {
-    std::chrono::time_point<std::chrono::system_clock> click_time =
-        std::chrono::system_clock::now();
-    std::chrono::duration<double> timeout = click_time - rootptr->reset_time;
-    const std::chrono::duration<double> r_timeout =
-        std::chrono::milliseconds(500);
-    if (timeout < r_timeout) {
-      return;
-    }
+  // PROPOZYCJA DODANIA GUZIKA na powrot
+  auto backb = new fw::button_t<sf::RectangleShape>{};
+  s.root->attach(std::unique_ptr<fw::node_t>{backb});
+
+  backb->label()->setFont(s.font.get("CourierPrime"));
+  backb->label()->setCharacterSize(60);
+  backb->label()->setFillColor(sf::Color::White);
+  backb->label()->setString("Back");
+  backb->shape()->setSize({200.f, 100.f});
+  backb->shape()->setPosition((ww - 200.f) / 2.f, wh - 110.f);
+  backb->shape()->setFillColor(sf::Color::Black);
+  backb->shape()->setOutlineColor(sf::Color::White);
+  backb->shape()->setOutlineThickness(5);
+  backb->center();
+
+  backb->add_hover_cb(
+      [](auto *ptr) { ptr->shape()->setOutlineColor(sf::Color::Red); });
+  backb->add_unhover_cb(
+      [](auto *ptr) { ptr->shape()->setOutlineColor(sf::Color::White); });
+
+  backb->add_click_cb([ctx](auto *) {
+    fw::activate_scene(ctx, "selection_menu");
+    // JESZCZE JAKOS BY WYPADALO POSPRZATAC PLANSZE, BO INACZEJ WRACAJAC
+    // PO WYJSCIU DO MENU BEDZIE WIDAC POZYCJE STARYCH PIONKOW.
+    // MOZE JAKOS ZMODYFIKOWAC LAMBDE RESET :)
+  });
+
+  auto make_new_pos = [offset_x, offset_y, ww, wh](int i) {
+    return sf::Vector2f{offset_x + (i % 15) * int(wh / 20),
+                        offset_y + (i / 15) * int(wh / 20)};
+  };
+
+  auto interact = [evaluate_win, rootptr, ctx, make_new_pos](int i = -1) {
+    // TEN FRAGMENCIK SPRAWIAL ZE TYLKO CO SEKUNDE BYLO REALIZOWANE CIALO
+    // FUNKCJI CO SPRAWIALO WRAZENIE ZE KLIKANIE NIE DZIALALO :)
+    // PROPONUJE WYPIEPRZNAC :)))
+    //    std::chrono::time_point<std::chrono::system_clock> click_time =
+    //        std::chrono::system_clock::now();
+    //    std::chrono::duration<double> timeout = click_time -
+    //    rootptr->reset_time; const std::chrono::duration<double> r_timeout =
+    //        std::chrono::milliseconds(500);
+    //    if (timeout < r_timeout) {
+    //      return;
+    //    }
     auto s = ctx->active_scene;
     if (i == -1)
       return;
@@ -112,9 +150,7 @@ void initialize_gomoku(fw::context_t *ctx) {
           dynamic_cast<fw::button_t<sf::Sprite> *>(
               s->vip_nodes.at("w" + std::to_string(rootptr->move / 2)))
               ->shape()
-              ->setPosition(
-                  sf::Vector2f{ww * 0.289f + int(i % 15) * int(wh / 20),
-                               ww * 0.125f + int(i / 15 - 2) * int(wh / 20)});
+              ->setPosition(make_new_pos(i));
           break;
         case 2:
           dynamic_cast<fw::button_t<sf::Sprite> *>(
@@ -123,9 +159,7 @@ void initialize_gomoku(fw::context_t *ctx) {
           dynamic_cast<fw::button_t<sf::Sprite> *>(
               s->vip_nodes.at("b" + std::to_string(rootptr->move / 2)))
               ->shape()
-              ->setPosition(
-                  sf::Vector2f{ww * 0.289f + int(i % 15) * int(wh / 20),
-                               ww * 0.125f + int(i / 15 - 2) * int(wh / 20)});
+              ->setPosition(make_new_pos(i));
           break;
         }
         rootptr->player ^= 3;
@@ -151,8 +185,12 @@ void initialize_gomoku(fw::context_t *ctx) {
   };
 
   s.event_cb_map[sf::Event::MouseButtonReleased] = [interact,
-                                                    find_button_nr](auto *) {
-    interact(find_button_nr(sf::Mouse::getPosition()));
+                                                    find_button_nr](auto *s) {
+    // PROBLEM NR. 2
+    // ZAWOLANIE sf::Mouse::getPosition() bez parametru, powoduje
+    // ze pozycja myszki jest zczytywana wzgledem lewego gornego rogu MONITORA,
+    // nie okna :)
+    interact(find_button_nr(sf::Mouse::getPosition(*s->window)));
   };
 
   auto create_button = [&s](float x, float y, std::string t, std::string i) {
