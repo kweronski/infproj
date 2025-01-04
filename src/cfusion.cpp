@@ -11,5 +11,6 @@ void initialize(::fw::context_t *ctx, const char *wdir) {
   /* ADD YOUR CUSTOM SCENE BUILDING FUNCTION HERE */
   initialize_decrypt(ctx);
   initialize_rps(ctx);
+  initialize_gomoku(ctx);
 }
 } // namespace cf

@@ -1,6 +1,7 @@
 #pragma once
 #include "decrypt.hpp"
 #include "rps.hpp"
+#include "gomoku.hpp"
 #include <iostream>
 
 namespace cf {
