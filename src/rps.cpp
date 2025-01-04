@@ -23,6 +23,14 @@ void initialize_rps(fw::context_t *ctx) {
   s.root = std::unique_ptr<::fw::node_t>{rpsptr};
   init_graph(&rpsptr->graph);
 
+  fw::add_routine(&s, [rpsptr](auto *scene) {
+    if (!fw::get_value_from_register<float>(scene, "rps_update_settings"))
+      return;
+    scene->global_registers->number.add("rps_update_settings", 0);
+    rpsptr->recent_moves.resize(
+        fw::get_value_from_register<float>(scene, "rps_move_storage"));
+  });
+
   auto create_label = [&s](std::string t, std::string i,
                            sf::Color c = sf::Color::White, unsigned sz = 60) {
     auto ptr = new fw::basic_node_t<sf::Text>{};

@@ -296,7 +296,7 @@ void initialize_panels(fw::context_t *ctx, fw::scene_t *s, float barrier) {
 void initialize_countdown(fw::scene_t *s, float barrier) {
   auto ww = fw::get_value_from_register<float>(s, "window_width");
   auto p = dynamic_cast<cf::decrypt_t *>(s->root.get());
-  p->time_left = 120;
+  p->time_left = fw::get_value_from_register<float>(s, "dec_cd");
 
   auto tl = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{tl});
@@ -328,6 +328,20 @@ void initialize_countdown(fw::scene_t *s, float barrier) {
   });
 
   fw::add_routine(s, [](auto *ptr) {
+    if (ptr->global_registers->number.template get_value<bool>(
+            "dec_update_settings")) {
+      ptr->global_registers->number.add("dec_update_settings", 0);
+      auto p = dynamic_cast<cf::decrypt_t *>(ptr->root.get());
+      p->time_left = fw::get_value_from_register<float>(ptr, "dec_cd");
+      p->health = fw::get_value_from_register<float>(ptr, "dec_hp");
+      auto hp =
+          dynamic_cast<fw::basic_node_t<sf::Text> *>(ptr->vip_nodes.at("hp"));
+      hp->shape()->setString("HP: " + std::to_string(p->health));
+      auto tl =
+          dynamic_cast<fw::basic_node_t<sf::Text> *>(ptr->vip_nodes.at("tl"));
+      tl->shape()->setString("TL: " + std::to_string(p->time_left));
+    }
+
     auto dc = dynamic_cast<cf::decrypt_t *>(ptr->root.get());
     if (dc->time_left)
       return;
@@ -368,7 +382,7 @@ void initialize_countdown(fw::scene_t *s, float barrier) {
 void initialize_hp(fw::scene_t *s, float barrier) {
   auto ww = fw::get_value_from_register<float>(s, "window_width");
   auto p = dynamic_cast<cf::decrypt_t *>(s->root.get());
-  p->health = 4;
+  p->health = fw::get_value_from_register<float>(s, "dec_hp");
 
   auto hp = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{hp});

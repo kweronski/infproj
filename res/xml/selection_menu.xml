@@ -36,11 +36,13 @@
 		<on_touch id="rps_start_button">
 			<activate_scene value="rock_paper_scissors"/>
 			<position x="center" y="center"/>
+			<nreg id="rps_update_settings" value="1" type="global"/>
 		</on_touch>
 
 		<on_touch id="decrypt_start_button">
 			<activate_scene value="decrypt_mini_game"/>
 			<position x="center" y="center"/>
+			<nreg id="dec_update_settings" value="1" type="global"/>
 		</on_touch>
 
 		<on_touch id="gomoku_start_button">
