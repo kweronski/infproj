@@ -11,7 +11,7 @@ struct gomoku_root_t : public ::fw::node_t {
   int winner = 0;
   int move = 0;
   int wins[2] = {0, 0};
-  std::chrono::time_point<std::chrono::system_clock> reset_time;
+  bool draw = 0;
 };
 
 void initialize_gomoku(fw::context_t *ctx);
