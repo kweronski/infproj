@@ -4,3 +4,5 @@ build/
 *.lib
 compile_commands.json
 *.swp
+.cache/
+flake.lock
