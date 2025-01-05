@@ -117,7 +117,6 @@ void load_scene(context_t *ctx, const std::string &xml, std::string id,
 void create_window_from_registers(context_t *ctx) {
   auto nreg = &ctx->global_registers.number;
   auto sreg = &ctx->global_registers.string;
-
   try {
     std::string t{sreg->get_value("window_title")};
     sf::VideoMode m{nreg->get_value<unsigned>("window_width"),

@@ -1,6 +1,7 @@
 <texture id="logo_rps" src="./img/logo_rock_paper_scissors.jpeg"/>
 <texture id="logo_decrypt" src="./img/decrypt.jpeg"/>
 <texture id="logo_gomoku" src="./img/gomoku_logo.png"/>
+<texture id="logo_ttt" src="./img/ttt_logo.png"/>
 <texture id="cursor" src="./img/cursor.png"/>
 
 <font id="AnonymousPro" src="./font/AnonymousPro-Regular.ttf"/>
@@ -28,6 +29,12 @@
 		<scale x="0.5" y="0.5"/>
 	</button>
 
+	<button type="sprite" id="ttt_start_button">
+		<position x="0.1 * __n:window_height + 900" y="0.1 * __n:window_height"/>
+		<fill_texture id="logo_ttt"/>
+		<scale x="0.5" y="0.5"/>
+	</button>
+
 	<button type="sprite" id="cursor">
 		<position x="center" y="center"/>
 		<fill_texture id="cursor"/>
@@ -48,6 +55,12 @@
 		<on_touch id="gomoku_start_button">
 			<activate_scene value="gomoku"/>
 			<position x="center" y="center"/>
+		</on_touch>
+		
+		<on_touch id="ttt_start_button">
+			<activate_scene value="ttt"/>
+			<position x="center" y="center"/>
+			<nreg id="ttt_update_settings" value="1" type="global"/>			
 		</on_touch>
 
 		<on_press key="W" move="(-1) * __n:cursor_mm" axis="y"/>
