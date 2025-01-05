@@ -37,8 +37,29 @@ struct scene_t {
   std::chrono::time_point<std::chrono::steady_clock> last_frame_start{};
   double frame_time{1000.0 / 60.0};
 
-  sf::Event event{};
-  std::unordered_map<sf::Event::EventType, functor_t> event_cb_map{};
+  std::list<functor_t> closed_event_cbs{};
+  std::list<functor_t> resized_event_cbs{};
+  std::list<functor_t> focus_lost_event_cbs{};
+  std::list<functor_t> focus_gained_event_cbs{};
+  std::list<functor_t> text_entered_event_cbs{};
+  std::list<functor_t> key_pressed_event_cbs{};
+  std::list<functor_t> key_released_event_cbs{};
+  std::list<functor_t> mouse_wheel_scrolled_event_cbs{};
+  std::list<functor_t> mouse_button_pressed_event_cbs{};
+  std::list<functor_t> mouse_button_released_event_cbs{};
+  std::list<functor_t> mouse_moved_event_cbs{};
+  std::list<functor_t> mouse_moved_raw_event_cbs{};
+  std::list<functor_t> mouse_entered_event_cbs{};
+  std::list<functor_t> mouse_left_event_cbs{};
+  std::list<functor_t> joystick_button_pressed_event_cbs{};
+  std::list<functor_t> joystick_button_released_event_cbs{};
+  std::list<functor_t> joystick_moved_event_cbs{};
+  std::list<functor_t> joystick_connected_event_cbs{};
+  std::list<functor_t> joystick_disconnected_event_cbs{};
+  std::list<functor_t> touch_began_event_cbs{};
+  std::list<functor_t> touch_moved_event_cbs{};
+  std::list<functor_t> touch_ended_event_cbs{};
+  std::list<functor_t> sensor_changed_event_cbs{};
 };
 
 template <typename T>

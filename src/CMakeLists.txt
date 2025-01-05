@@ -6,7 +6,8 @@ if (DEBUG)
 endif()
 
 # Find the required dependencies
-find_package(SFML COMPONENTS system graphics network audio window REQUIRED)
+set(SFML_STATIC_LIBRARIES ON)
+find_package(SFML 3 COMPONENTS Graphics Network Audio)
 find_package(PugiXML REQUIRED)
 
 # Expand the search path for custom standard lib versions
@@ -23,11 +24,9 @@ add_library(framework
 )
 
 target_link_libraries(framework PUBLIC
-	-lsfml-system
-	-lsfml-window
-	-lsfml-graphics
-	-lsfml-network
-	-lsfml-audio
+	SFML::Graphics
+	SFML::Network
+	SFML::Audio
 	-lpugixml
 )
 

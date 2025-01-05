@@ -31,11 +31,12 @@ void create_button(fw::scene_t *s, slider_t sd, float x, std::string label,
 
   auto l = new fw::button_t<sf::RectangleShape>{};
   s->root->attach(std::unique_ptr<fw::node_t>{l});
+  l->shape().reset(new sf::RectangleShape{});
+  l->label().reset(new sf::Text{s->font.get(sd.font)});
 
   l->shape()->setSize({50, sd.h});
   l->shape()->setPosition({sd.x + x, sd.y});
   l->shape()->setFillColor(sf::Color::White);
-  l->label()->setFont(s->font.get(sd.font));
   l->label()->setCharacterSize(40);
   l->label()->setFillColor(sf::Color::Black);
   l->label()->setString(label);
@@ -60,11 +61,12 @@ template <typename T> void add_slider(fw::context_t *ctx, const slider_t *d) {
 
   auto ptr = new fw::button_t<sf::RectangleShape>{};
   scene->root->attach(std::unique_ptr<fw::node_t>{ptr});
+  ptr->shape().reset(new sf::RectangleShape{});
+  ptr->label().reset(new sf::Text{scene->font.get(d->font)});
 
   ptr->shape()->setSize({d->w, d->h});
   ptr->shape()->setPosition({d->x + 50, d->y});
   ptr->shape()->setFillColor(sf::Color::Black);
-  ptr->label()->setFont(scene->font.get(d->font));
   ptr->label()->setCharacterSize(40);
   ptr->label()->setFillColor(sf::Color::White);
   ptr->label()->setString(d->label + std::to_string((T)d->init));

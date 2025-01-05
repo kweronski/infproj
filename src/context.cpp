@@ -20,6 +20,106 @@ void cd_to_binary_dir(context_t *ctx, const std::string &p) {
   ctx->current_working_dir = std::filesystem::current_path().string();
 }
 
+void update_events(context_t *ctx) {
+  auto s = ctx->active_scene;
+
+  while (auto event = ctx->window.pollEvent()) {
+    if (event->is<sf::Event::Closed>()) {
+      for (const auto &f : s->closed_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::Resized>()) {
+      for (const auto &f : s->resized_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::FocusLost>()) {
+      for (const auto &f : s->focus_lost_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::FocusGained>()) {
+      for (const auto &f : s->focus_gained_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::TextEntered>()) {
+      for (const auto &f : s->text_entered_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::KeyPressed>()) {
+      for (const auto &f : s->key_pressed_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::KeyReleased>()) {
+      for (const auto &f : s->key_released_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseWheelScrolled>()) {
+      for (const auto &f : s->mouse_wheel_scrolled_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseButtonPressed>()) {
+      for (const auto &f : s->mouse_button_pressed_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseButtonReleased>()) {
+      for (const auto &f : s->mouse_button_released_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseMoved>()) {
+      for (const auto &f : s->mouse_moved_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseMovedRaw>()) {
+      for (const auto &f : s->mouse_moved_raw_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseEntered>()) {
+      for (const auto &f : s->mouse_entered_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::MouseLeft>()) {
+      for (const auto &f : s->mouse_left_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::JoystickButtonPressed>()) {
+      for (const auto &f : s->joystick_button_pressed_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::JoystickButtonReleased>()) {
+      for (const auto &f : s->joystick_button_released_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::JoystickMoved>()) {
+      for (const auto &f : s->joystick_moved_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::JoystickConnected>()) {
+      for (const auto &f : s->joystick_connected_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::JoystickDisconnected>()) {
+      for (const auto &f : s->joystick_disconnected_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::TouchBegan>()) {
+      for (const auto &f : s->touch_began_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::TouchMoved>()) {
+      for (const auto &f : s->touch_moved_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::TouchEnded>()) {
+      for (const auto &f : s->touch_ended_event_cbs)
+        if (f)
+          f(s);
+    } else if (event->is<sf::Event::SensorChanged>()) {
+      for (const auto &f : s->sensor_changed_event_cbs)
+        if (f)
+          f(s);
+    }
+  }
+}
+
 void update(context_t *ctx) {
   if (!ctx)
     return;
@@ -28,11 +128,7 @@ void update(context_t *ctx) {
   if (!s)
     return;
 
-  while (ctx->window.pollEvent(s->event))
-    for (const auto &cb : s->event_cb_map)
-      if (cb.first == s->event.type)
-        if (cb.second)
-          cb.second(s);
+  update_events(ctx);
 
   auto now = std::chrono::steady_clock::now();
   if (diff(now, s->last_frame_start) < s->frame_time)
@@ -92,7 +188,7 @@ void remove_scene(context_t *ctx, const std::string &id,
 
 scene_t create_scene_skeleton(context_t *ctx) {
   scene_t s{};
-  s.event_cb_map[sf::Event::Closed] = [](auto *p) { p->window->close(); };
+  s.closed_event_cbs.push_back([](auto *p) { p->window->close(); });
   s.scene_map = &ctx->scene_map;
   s.global_registers = &ctx->global_registers;
   s.current_working_dir = &ctx->current_working_dir;
@@ -120,8 +216,8 @@ void create_window_from_registers(context_t *ctx) {
 
   try {
     std::string t{sreg->get_value("window_title")};
-    sf::VideoMode m{nreg->get_value<unsigned>("window_width"),
-                    nreg->get_value<unsigned>("window_height")};
+    sf::VideoMode m{{nreg->get_value<unsigned>("window_width"),
+                     nreg->get_value<unsigned>("window_height")}};
 
     ctx->window.create(m, t);
   } catch (...) {

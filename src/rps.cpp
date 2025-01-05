@@ -35,7 +35,8 @@ void initialize_rps(fw::context_t *ctx) {
                            sf::Color c = sf::Color::White, unsigned sz = 60) {
     auto ptr = new fw::basic_node_t<sf::Text>{};
     s.root->attach(std::unique_ptr<fw::node_t>{ptr});
-    ptr->shape()->setFont(s.font.get("Digital7"));
+    ptr->shape().reset(new sf::Text{s.font.get("Digital7")});
+
     ptr->shape()->setCharacterSize(sz);
     ptr->shape()->setFillColor(c);
     ptr->shape()->setString(t);
@@ -46,29 +47,29 @@ void initialize_rps(fw::context_t *ctx) {
 
   auto rtext = create_label("ROUND: 1", "round_counter");
   auto bb = rtext->shape()->getGlobalBounds();
-  rtext->shape()->setPosition({(ww - bb.width) / 2.f, bb.height});
+  rtext->shape()->setPosition({(ww - bb.size.x) / 2.f, bb.size.y});
 
   auto rscore = create_label("SCORE: 0/0", "score_counter");
   bb = rscore->shape()->getGlobalBounds();
-  rscore->shape()->setPosition({(ww - bb.width) / 2.f, 3 * bb.height});
+  rscore->shape()->setPosition({(ww - bb.size.x) / 2.f, 3 * bb.size.y});
 
   auto rstat = create_label("STATUS:", "round_status");
   bb = rstat->shape()->getGlobalBounds();
-  rstat->shape()->setPosition({(ww - bb.width) / 2.f, 5 * bb.height});
+  rstat->shape()->setPosition({(ww - bb.size.x) / 2.f, 5 * bb.size.y});
 
   auto win = create_label("YOU WIN!", "victory", sf::Color::Green);
   bb = win->shape()->getGlobalBounds();
-  win->shape()->setPosition({ww / 2.f + bb.width * 1.8f, 5.f * bb.height - 5});
+  win->shape()->setPosition({ww / 2.f + bb.size.x * 1.8f, 5.f * bb.size.y - 5});
   win->hide();
 
   auto def = create_label("YOU LOSE!", "defeat", sf::Color::Red);
   bb = def->shape()->getGlobalBounds();
-  def->shape()->setPosition({ww / 2.f + bb.width * 1.3f, 5.f * bb.height});
+  def->shape()->setPosition({ww / 2.f + bb.size.x * 1.3f, 5.f * bb.size.y});
   def->hide();
 
   auto tie = create_label("IT'S A TIE!", "tie", sf::Color::Yellow);
   bb = tie->shape()->getGlobalBounds();
-  tie->shape()->setPosition({ww / 2.f + bb.width * 1.3f, 5.f * bb.height + 5});
+  tie->shape()->setPosition({ww / 2.f + bb.size.x * 1.3f, 5.f * bb.size.y + 5});
   tie->hide();
 
   auto vs = create_label("VS", "vs", sf::Color::White, 100);
@@ -79,9 +80,12 @@ void initialize_rps(fw::context_t *ctx) {
   auto create_icon = [&s](float x, float y, std::string t, std::string i) {
     auto ptr = new fw::button_t<sf::Sprite>{};
     s.root->attach(std::unique_ptr<fw::node_t>{ptr});
+    ptr->shape().reset(new sf::Sprite{s.texture.get_first()});
+    ptr->label().reset(new sf::Text{s.font.get_first()});
+
     ptr->shape()->setPosition(sf::Vector2f{x, y});
     ptr->shape()->setTexture(s.texture.get(t));
-    ptr->shape()->setScale(0.5, 0.5);
+    ptr->shape()->setScale({0.5, 0.5});
     if (i.size())
       s.vip_nodes.emplace(i, ptr);
     return ptr;
@@ -195,12 +199,15 @@ void initialize_rps(fw::context_t *ctx) {
 
   auto backb = new fw::button_t<sf::RectangleShape>{};
   s.root->attach(std::unique_ptr<fw::node_t>{backb});
+  backb->label().reset(new sf::Text{s.font.get_first()});
+  backb->shape().reset(new sf::RectangleShape{});
+
   backb->label()->setFont(s.font.get("AnonymousPro"));
   backb->label()->setCharacterSize(60);
   backb->label()->setFillColor(sf::Color::White);
   backb->label()->setString("Back");
   backb->shape()->setSize({200.f, 100.f});
-  backb->shape()->setPosition((ww - 200.f) / 2.f, wh - 110.f);
+  backb->shape()->setPosition({(ww - 200.f) / 2.f, wh - 110.f});
   backb->shape()->setFillColor(sf::Color::Black);
   backb->shape()->setOutlineColor(sf::Color::White);
   backb->shape()->setOutlineThickness(5);

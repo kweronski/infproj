@@ -56,20 +56,28 @@ private:
 template <typename T> class basic_node_t : public node_t {
 public:
   void draw_current(sf::RenderTarget &r, sf::RenderStates s) const override {
-    r.draw(shape_, s);
+    if (!shape_)
+      throw std::runtime_error{"basic_node_t instance has nullptr shape!"};
+    r.draw(*shape_, s);
   }
 
-  void move(float x, float y) override { shape_.move(x, y); }
+  void move(float x, float y) override {
+    if (!shape_)
+      throw std::runtime_error{"basic_node_t instance has nullptr shape!"};
+    shape_->move({x, y});
+  }
 
   std::optional<sf::Rect<float>> bounds() const override {
-    return shape_.getGlobalBounds();
+    if (!shape_)
+      throw std::runtime_error{"basic_node_t instance has nullptr shape!"};
+    return shape_->getGlobalBounds();
   }
 
-  const T *shape() const { return &shape_; }
-  T *shape() { return &shape_; }
+  const std::unique_ptr<T> &shape() const { return shape_; }
+  std::unique_ptr<T> &shape() { return shape_; }
 
 private:
-  T shape_;
+  std::unique_ptr<T> shape_;
 };
 
 } // namespace fw

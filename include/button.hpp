@@ -12,14 +12,18 @@ public:
 
 public:
   void draw_current(sf::RenderTarget &t, sf::RenderStates s) const override {
-    t.draw(shape_, s);
-    t.draw(label_, s);
+    if (!shape_ || !label_)
+      return;
+    t.draw(*shape_, s);
+    t.draw(*label_, s);
   }
 
   void update_current(update_data_t *data) override {
+    if (!shape_ || !label_)
+      return;
     if (!data)
       return;
-    if (shape_.getGlobalBounds().contains(*data->last_mouse_pos))
+    if (shape_->getGlobalBounds().contains(*data->last_mouse_pos))
       hovered_ = true;
     else
       hovered_ = false;
@@ -55,7 +59,10 @@ public:
   }
 
   std::optional<sf::Rect<float>> bounds() const override {
-    return shape_.getGlobalBounds();
+    if (!shape_ || !label_)
+      throw std::runtime_error{
+          "button_t instance has nullptr label and shape!"};
+    return shape_->getGlobalBounds();
   }
 
   void set_click_timeout(std::chrono::milliseconds t) { ctimeout_ = t; }
@@ -149,22 +156,26 @@ public:
   bool hovered() const { return hovered_; }
   bool clicked() const { return clicked_; }
 
-  sf::Text *label() { return &label_; }
-  S *shape() { return &shape_; }
+  std::unique_ptr<sf::Text> &label() { return label_; }
+  std::unique_ptr<S> &shape() { return shape_; }
 
   void move(float x, float y) override {
-    shape_.move({x, y});
-    label_.move({x, y});
+    shape_->move({x, y});
+    label_->move({x, y});
   }
 
   void center() {
-    auto sbb = shape_.getGlobalBounds();
-    auto lbb = label_.getLocalBounds();
-    if (sbb.width <= lbb.width || sbb.height <= lbb.height)
+    if (!shape_ || !label_)
+      throw std::runtime_error{
+          "button_t instance has nullptr label and shape!"};
+    auto sbb = shape_->getGlobalBounds();
+    auto lbb = label_->getLocalBounds();
+    if (sbb.size.x <= lbb.size.x || sbb.size.y <= lbb.size.y)
       return;
-    label_.setOrigin(lbb.left + lbb.width / 2, lbb.top + lbb.height / 2);
-    label_.setPosition(
-        sf::Vector2f{sbb.left + sbb.width / 2, sbb.top + sbb.height / 2});
+    label_->setOrigin(
+        {lbb.position.x + lbb.size.x / 2, lbb.position.y + lbb.size.y / 2});
+    label_->setPosition(
+        {sbb.position.x + sbb.size.x / 2, sbb.position.y + sbb.size.y / 2});
   }
 
 private:
@@ -182,8 +193,8 @@ private:
 
   cb_container_t press_cb_{};
 
-  sf::Text label_{};
-  S shape_{};
+  std::unique_ptr<sf::Text> label_{};
+  std::unique_ptr<S> shape_{};
 
   std::size_t cb_id_{};
 

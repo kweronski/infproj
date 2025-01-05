@@ -95,9 +95,9 @@ void collect_position(const pugi::xml_node &n, scene_t *s, node_data_t &d) {
 std::optional<sf::Color> collect_color(const pugi::xml_node &n, scene_t *s,
                                        const std::string &id) {
   if (auto tag = n.child(id.c_str()); tag) {
-    auto r = evaluate<sf::Uint8>(s, tag.attribute("r").value());
-    auto g = evaluate<sf::Uint8>(s, tag.attribute("g").value());
-    auto b = evaluate<sf::Uint8>(s, tag.attribute("b").value());
+    auto r = evaluate<std::uint8_t>(s, tag.attribute("r").value());
+    auto g = evaluate<std::uint8_t>(s, tag.attribute("g").value());
+    auto b = evaluate<std::uint8_t>(s, tag.attribute("b").value());
     return sf::Color{r, g, b};
   }
   return {};

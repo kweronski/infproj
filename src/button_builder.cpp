@@ -24,7 +24,7 @@ template <typename T> inline void center(scene_t *s, button_t<T> *b) {
                        get_value_from_register<float>(s, "window_height")};
   auto ssz = b->bounds().value();
   b->shape()->setPosition(
-      {wsz.x / 2 - ssz.width / 2, wsz.y / 2 - ssz.height / 2});
+      {wsz.x / 2 - ssz.size.x / 2, wsz.y / 2 - ssz.size.y / 2});
 }
 
 template <typename T>
@@ -156,21 +156,44 @@ configure_button(const pugi::xml_node &n, scene_t *scene) {
     });
   if (d.scale_x.has_value())
     actions.push_back([d](auto *ptr, auto *, auto *) {
-      ptr->shape()->setScale(d.scale_x.value(), ptr->shape()->getScale().y);
+      ptr->shape()->setScale({d.scale_x.value(), ptr->shape()->getScale().y});
     });
   if (d.scale_y.has_value())
     actions.push_back([d](auto *ptr, auto *, auto *) {
-      ptr->shape()->setScale(ptr->shape()->getScale().x, d.scale_y.value());
+      ptr->shape()->setScale({ptr->shape()->getScale().x, d.scale_y.value()});
     });
   if (!d.position.has_value())
     actions.push_back([d](auto *ptr, auto *, auto *s) { center(s, ptr); });
   return actions;
 };
 
+template <typename T> T *init_button(scene_t *s);
+
+template <> fw::button_t<sf::RectangleShape> *init_button(scene_t *s) {
+  auto b = new fw::button_t<sf::RectangleShape>{};
+  b->label().reset(new sf::Text{s->font.get_first()});
+  b->shape().reset(new sf::RectangleShape{});
+  return b;
+}
+
+template <> fw::button_t<sf::CircleShape> *init_button(scene_t *s) {
+  auto b = new fw::button_t<sf::CircleShape>{};
+  b->label().reset(new sf::Text{s->font.get_first()});
+  b->shape().reset(new sf::CircleShape{});
+  return b;
+}
+
+template <> fw::button_t<sf::Sprite> *init_button(scene_t *s) {
+  auto b = new fw::button_t<sf::Sprite>{};
+  b->label().reset(new sf::Text{s->font.get_first()});
+  b->shape().reset(new sf::Sprite{s->texture.get_first()});
+  return b;
+}
+
 template <typename T>
 std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
                                           context_t *ctx, scene_t *s) {
-  auto ptr = new T{};
+  auto ptr = init_button<T>(s);
   std::unique_ptr<node_t> sptr{ptr};
 
   auto actions = configure_button<T>(n, s);
@@ -260,7 +283,7 @@ std::unique_ptr<node_t> build_button_type(const pugi::xml_node &n,
     add_routine(s, [a, ctx, ptr, target, sregs, nregs](auto *s) {
       if (auto tb = s->vip_nodes.at(target)->bounds(); tb.has_value()) {
         if (auto pb = ptr->bounds(); pb.has_value())
-          if (tb.value().intersects(pb.value())) {
+          if (tb.value().findIntersection(pb.value())) {
             for (const auto &e : a)
               e(ptr, ctx, s);
 

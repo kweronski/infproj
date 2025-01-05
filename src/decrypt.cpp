@@ -175,6 +175,8 @@ void create_panel(fw::scene_t *s, key_data_t *d) {
   auto create_letter = [s, d](float x, float y, char k, int i = -1) {
     auto ptr = new fw::button_t<sf::RectangleShape>{};
     s->root->attach(std::unique_ptr<fw::node_t>{ptr});
+    ptr->label().reset(new sf::Text{s->font.get_first()});
+    ptr->shape().reset(new sf::RectangleShape{});
     auto id = d->id_prefix + (i == -1 ? std::string{k} : std::to_string(i));
     s->vip_nodes[id] = ptr;
 
@@ -300,6 +302,7 @@ void initialize_countdown(fw::scene_t *s, float barrier) {
 
   auto tl = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{tl});
+  tl->shape().reset(new sf::Text{s->font.get_first()});
 
   tl->shape()->setFont(s->font.get("Digital7"));
   tl->shape()->setFillColor(sf::Color::White);
@@ -362,6 +365,8 @@ void initialize_countdown(fw::scene_t *s, float barrier) {
       });
       auto yl = new fw::button_t<sf::RectangleShape>{};
       ptr->root->attach(std::unique_ptr<fw::node_t>{yl});
+      yl->label().reset(new sf::Text{ptr->font.get_first()});
+      yl->shape().reset(new sf::RectangleShape{});
 
       yl->label()->setFont(ptr->font.get("AnonymousPro"));
       auto wh = fw::get_value_from_register<float>(ptr, "window_height");
@@ -386,6 +391,7 @@ void initialize_hp(fw::scene_t *s, float barrier) {
 
   auto hp = new fw::basic_node_t<sf::Text>{};
   s->root->attach(std::unique_ptr<fw::node_t>{hp});
+  hp->shape().reset(new sf::Text{s->font.get_first()});
 
   hp->shape()->setFont(s->font.get("Digital7"));
   hp->shape()->setFillColor(sf::Color::White);
@@ -404,6 +410,8 @@ void initialize_hp(fw::scene_t *s, float barrier) {
 
       auto yl = new fw::button_t<sf::RectangleShape>{};
       ptr->root->attach(std::unique_ptr<fw::node_t>{yl});
+      yl->label().reset(new sf::Text{ptr->font.get_first()});
+      yl->shape().reset(new sf::RectangleShape{});
 
       yl->label()->setFont(ptr->font.get("AnonymousPro"));
       auto wh = fw::get_value_from_register<float>(ptr, "window_height");
@@ -433,6 +441,8 @@ void initialize_buttons(fw::scene_t *s, fw::context_t *ctx) {
   auto b = new fw::button_t<sf::RectangleShape>{};
   s->root->attach(std::unique_ptr<fw::node_t>{b});
   s->vip_nodes.emplace("back_button", b);
+  b->label().reset(new sf::Text{s->font.get_first()});
+  b->shape().reset(new sf::RectangleShape{});
 
   constexpr float w = 200, h = 100, p = 2;
   b->shape()->setPosition({ww - w - 2 * p, wh - h - 2 * p});
@@ -476,6 +486,8 @@ void initialize_keys(fw::scene_t *s, fw::context_t *ctx) {
     auto dc = dynamic_cast<cf::decrypt_t *>(sc->root.get());
     auto index = dc->rng() % alph.size();
     auto k = new cf::key_t{alph[index], dc->key[index]};
+    k->label().reset(new sf::Text{sc->font.get_first()});
+    k->shape().reset(new sf::RectangleShape{});
 
     dc->attach(std::unique_ptr<fw::node_t>{k});
     dc->keys.push_back(k);
@@ -557,6 +569,8 @@ void initialize_round(fw::scene_t *s, fw::context_t *ctx) {
       });
       auto yw = new fw::button_t<sf::RectangleShape>{};
       ptr->root->attach(std::unique_ptr<fw::node_t>{yw});
+      yw->label().reset(new sf::Text{ptr->font.get_first()});
+      yw->shape().reset(new sf::RectangleShape{});
 
       yw->label()->setFont(ptr->font.get("AnonymousPro"));
       auto wh = fw::get_value_from_register<float>(ptr, "window_height");

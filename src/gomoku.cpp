@@ -18,6 +18,8 @@ void initialize_gomoku(fw::context_t *ctx) {
                            sf::Color c = sf::Color::White, unsigned sz = 60) {
     auto ptr = new fw::basic_node_t<sf::Text>{};
     s.root->attach(std::unique_ptr<fw::node_t>{ptr});
+    ptr->shape().reset(new sf::Text{s.font.get_first()});
+
     ptr->shape()->setFont(s.font.get("CourierPrime"));
     ptr->shape()->setCharacterSize(sz);
     ptr->shape()->setFillColor(c);
@@ -103,13 +105,15 @@ void initialize_gomoku(fw::context_t *ctx) {
   // PROPOZYCJA DODANIA GUZIKA na powrot
   auto backb = new fw::button_t<sf::RectangleShape>{};
   s.root->attach(std::unique_ptr<fw::node_t>{backb});
+  backb->label().reset(new sf::Text{s.font.get_first()});
+  backb->shape().reset(new sf::RectangleShape{});
 
   backb->label()->setFont(s.font.get("CourierPrime"));
   backb->label()->setCharacterSize(60);
   backb->label()->setFillColor(sf::Color::White);
   backb->label()->setString("Back");
   backb->shape()->setSize({200.f, 100.f});
-  backb->shape()->setPosition((ww - 200.f) / 2.f, wh - 110.f);
+  backb->shape()->setPosition({(ww - 200.f) / 2.f, wh - 110.f});
   backb->shape()->setFillColor(sf::Color::Black);
   backb->shape()->setOutlineColor(sf::Color::White);
   backb->shape()->setOutlineThickness(5);
@@ -192,16 +196,17 @@ void initialize_gomoku(fw::context_t *ctx) {
     }
   };
 
-  s.event_cb_map[sf::Event::MouseButtonReleased] = [interact, find_button_nr
-                                                    ](auto *s) {
-    interact(find_button_nr(sf::Mouse::getPosition(*s->window)));
-  };
+  s.mouse_button_released_event_cbs.push_back(
+      [interact, find_button_nr](auto *s) {
+        interact(find_button_nr(sf::Mouse::getPosition(*s->window)));
+      });
 
   auto create_button = [&s](float x, float y, std::string t, std::string i) {
     auto ptr = new fw::button_t<sf::Sprite>{};
     s.root->attach(std::unique_ptr<fw::node_t>{ptr});
+    ptr->shape().reset(new sf::Sprite{s.texture.get(t)});
+    ptr->label().reset(new sf::Text{s.font.get_first()});
     ptr->shape()->setPosition(sf::Vector2f{x, y});
-    ptr->shape()->setTexture(s.texture.get(t));
     if (i.size())
       s.vip_nodes.emplace(i, ptr);
     return ptr;
@@ -231,12 +236,15 @@ void initialize_gomoku(fw::context_t *ctx) {
   }
 
   auto wins1 = create_label("0", "wins1");
-  wins1->shape()->setPosition(50, 50);
+  wins1->shape()->setPosition({50, 50});
   auto wins2 = create_label("0", "wins2");
-  wins2->shape()->setPosition(1830, 50);
+  wins2->shape()->setPosition({1830, 50});
 
   auto ptr = new fw::button_t<sf::RectangleShape>{};
   s.root->attach(std::unique_ptr<fw::node_t>{ptr});
+  ptr->label().reset(new sf::Text{s.font.get_first()});
+  ptr->shape().reset(new sf::RectangleShape{});
+
   ptr->shape()->setSize({ww, wh});
   ptr->shape()->setFillColor(sf::Color{50, 50, 50, 120});
   ptr->hide();
@@ -244,21 +252,21 @@ void initialize_gomoku(fw::context_t *ctx) {
   create_label("Player _ won!", "player_won");
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("player_won"))
       ->shape()
-      ->setPosition(700, 400);
+      ->setPosition({700, 400});
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("player_won"))
       ->hide();
 
   create_label("Game endend in a draw!", "draw");
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("draw"))
       ->shape()
-      ->setPosition(600, 400);
+      ->setPosition({600, 400});
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("draw"))->hide();
 
   create_label("Press anywhere to reset...", "reset_l");
   s.vip_nodes.at("reset_l")->hide();
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("reset_l"))
       ->shape()
-      ->setPosition(570, 500);
+      ->setPosition({570, 500});
 
   ctx->scene_map.emplace(std::move(sn), std::move(s));
 }

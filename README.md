@@ -6,6 +6,12 @@ To build the project you can install the deps on deb-based distros like so:
 sudo apt install libsfml-dev libpugixml-dev
 ```
 
+To build the SFMLv3 version, you may also need to install the following:
+
+```console
+sudo apt install libxi-dev libxcursor-dev libudev-dev libfreetype-dev libvorbis-dev libflac-dev
+```
+
 And then invoke cmake:
 
 ```console
