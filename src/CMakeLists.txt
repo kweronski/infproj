@@ -36,6 +36,7 @@ add_executable(run main.cpp
 	decrypt.cpp
 	rps.cpp
 	gomoku.cpp
+	ttt.cpp
 )
 
 set_target_properties(run PROPERTIES

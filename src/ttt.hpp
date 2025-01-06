@@ -1,38 +1,23 @@
 #pragma once
-#include <context.hpp>
 #include <button.hpp>
+#include <context.hpp>
+#include <vector>
 
 namespace cf {
 struct ttt_t : public ::fw::node_t {
-  enum class move_t : char { x, o };
+  std::vector<std::vector<char>> board{};
+  std::size_t board_size{3};
+  char player_move_id{'X'};
+  char ai_move_id{'O'};
+  // char ai_move_id = 'O'; // to samo co powyzej, starszy standard
+  char empty_id{0};
 
-  struct element_t {
-    std::unique_ptr<element_t> next{};
-   // std::list<element_t *> wins_against{};
-   // std::list<element_t *> defeated_by{};
-   // move_t type{};
-  };
+  using position_t = std::pair<std::size_t, std::size_t>; // aliasy
+  using win_pattern_t = std::vector<position_t>;
 
- // std::mt19937 rng{std::random_device{}()};
- // std::vector<move_t> recent_moves{};
- // long long unsigned round{1};
-//  long long unsigned score{0};
-//  long long unsigned aiscore{0};
-// element_t graph{};
+  static std::vector<win_pattern_t> victory_db;
+  static bool is_victory(std::vector<std::vector<char>> *, char);
 };
-/*
-void init_graph(ttt_t::element_t *);
 
-char victor(const ttt_t::move_t m1, const ttt_t::move_t m2,
-            ttt_t::element_t *n);
-
-ttt_t::move_t find_counter_move(const ttt_t::move_t m,
-                                const ttt_t::element_t *n);
-
-ttt_t::move_t ai_move(ttt_t *);
-
-void register_move(ttt_t::move_t m, ttt_t *);
-
-*/
 void initialize_ttt(::fw::context_t *);
 } // namespace cf

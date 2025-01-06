@@ -106,5 +106,14 @@ void post_process_settings_menu(fw::context_t *ctx) {
   slider_data.init = 20;
   slider_data.inc = 5;
   add_slider<int>(ctx, &slider_data);
+
+  slider_data.label = "TTT player type: ";
+  slider_data.y += (slider_data.h + 10);
+  slider_data.variable = "ttt_player_type";
+  slider_data.min = 0;
+  slider_data.max = 1;
+  slider_data.init = 0;
+  slider_data.inc = 1;
+  add_slider<int>(ctx, &slider_data);
 }
 } // namespace cf
