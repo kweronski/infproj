@@ -7,7 +7,7 @@ endif()
 
 # Find the required dependencies
 set(SFML_STATIC_LIBRARIES ON)
-find_package(SFML 3 COMPONENTS Graphics Network Audio)
+find_package(SFML 3 REQUIRED COMPONENTS Graphics Network Audio)
 find_package(PugiXML REQUIRED)
 
 # Expand the search path for custom standard lib versions
