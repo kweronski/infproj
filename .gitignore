@@ -5,3 +5,5 @@ build/
 compile_commands.json
 *.swp
 .vscode/
+.cache/
+flake.lock

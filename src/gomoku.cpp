@@ -33,7 +33,7 @@ void initialize_gomoku(fw::context_t *ctx) {
   const float offset_x = ww * 0.289; // BOARD_X
   const float offset_y = wh * 0.125; // BOARD_Y
 
-  auto find_button_nr = [ww, wh, offset_x, offset_y](const sf::Vector2i pos) {
+  auto find_button_nr = [wh, offset_x, offset_y](const sf::Vector2i pos) {
     int x = (pos.x - offset_x) / (wh / 20.f);
     int y = (pos.y - offset_y) / (wh / 20.f);
     if ((pos.x > offset_x + (wh / 20.f) * 15) || (pos.x < offset_x) ||
@@ -45,32 +45,42 @@ void initialize_gomoku(fw::context_t *ctx) {
   auto evaluate_win = [rootptr](int button) {
     const auto &ownership = rootptr->ownership;
     const auto player = rootptr->player;
-    const int directions[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
-                                  {0, 1},   {1, -1}, {1, 0},  {1, 1}};
+    const int directions_a[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
+                                    {0, 1},   {1, -1}, {1, 0},  {1, 1}};
+    const int directions_b[8][2] = {{1, 1},  {1, 0},  {1, -1}, {0, 1},
+                                    {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
     for (int i = 0; i < 8; i++) {
-      int x = button % 15;
-      int y = button / 15;
-      int ok = 1;
+      int x_a = button % 15;
+      int y_a = button / 15;
+      int a_ok = 0;
 
-      while (ownership[y * 15 + x] == player) {
-        y += directions[i][0];
-        x += directions[i][1];
-        ok++;
+      int x_b = button % 15;
+      int y_b = button / 15;
+      int b_ok = 0;
+
+      while (ownership[y_a * 15 + x_a] == player) {
+        y_a += directions_a[i][0];
+        x_a += directions_a[i][1];
+        a_ok++;
       }
 
-      if (ok > 4)
+      while (ownership[y_b * 15 + x_b] == player) {
+        y_b += directions_b[i][0];
+        x_b += directions_b[i][1];
+        b_ok++;
+      }
+
+      if (a_ok + b_ok > 5)
         return player;
     }
     return 0;
   };
 
-  auto reset = [rootptr, ctx](auto *) {
-    if (rootptr->winner == 0)
-      return;
+  auto reset = [rootptr, ctx]() {
     auto s = ctx->active_scene;
     rootptr->winner = 0;
     rootptr->move = 0;
-    rootptr->reset_time = std::chrono::system_clock::now();
+    rootptr->draw = 0;
 
     for (int i = 0; i < 15 * 15; i++) {
       rootptr->ownership[i] = 0;
@@ -86,7 +96,7 @@ void initialize_gomoku(fw::context_t *ctx) {
 
     s->vip_nodes.at("player_won")->hide();
     s->vip_nodes.at("end_screen")->hide();
-    s->vip_nodes.at("reset")->hide();
+    s->vip_nodes.at("draw")->hide();
     s->vip_nodes.at("reset_l")->hide();
   };
 
@@ -110,33 +120,32 @@ void initialize_gomoku(fw::context_t *ctx) {
   backb->add_unhover_cb(
       [](auto *ptr) { ptr->shape()->setOutlineColor(sf::Color::White); });
 
-  backb->add_click_cb([ctx](auto *) {
+  backb->add_click_cb([ctx, reset](auto *) {
+    reset();
     fw::activate_scene(ctx, "selection_menu");
-    // JESZCZE JAKOS BY WYPADALO POSPRZATAC PLANSZE, BO INACZEJ WRACAJAC
-    // PO WYJSCIU DO MENU BEDZIE WIDAC POZYCJE STARYCH PIONKOW.
-    // MOZE JAKOS ZMODYFIKOWAC LAMBDE RESET :)
   });
 
-  auto make_new_pos = [offset_x, offset_y, ww, wh](int i) {
-    return sf::Vector2f{offset_x + (i % 15) * int(wh / 20),
-                        offset_y + (i / 15) * int(wh / 20)};
+  auto make_new_pos = [offset_x, offset_y, wh](int i) {
+    return sf::Vector2f{offset_x + int(i % 15) * int(wh / 20),
+                        offset_y + int(i / 15) * int(wh / 20)};
   };
 
-  auto interact = [evaluate_win, rootptr, ctx, make_new_pos](int i = -1) {
-    // TEN FRAGMENCIK SPRAWIAL ZE TYLKO CO SEKUNDE BYLO REALIZOWANE CIALO
-    // FUNKCJI CO SPRAWIALO WRAZENIE ZE KLIKANIE NIE DZIALALO :)
-    // PROPONUJE WYPIEPRZNAC :)))
-    //    std::chrono::time_point<std::chrono::system_clock> click_time =
-    //        std::chrono::system_clock::now();
-    //    std::chrono::duration<double> timeout = click_time -
-    //    rootptr->reset_time; const std::chrono::duration<double> r_timeout =
-    //        std::chrono::milliseconds(500);
-    //    if (timeout < r_timeout) {
-    //      return;
-    //    }
+  auto interact = [evaluate_win, rootptr, ctx, make_new_pos,
+                   reset](int i = -1) {
     auto s = ctx->active_scene;
     if (i == -1)
       return;
+    if (rootptr->winner > 0 || rootptr->draw) {
+      reset();
+      return;
+    }
+    if (rootptr->move > (15 * 15 - 1)) {
+      s->vip_nodes.at("end_screen")->show();
+      s->vip_nodes.at("draw")->show();
+      s->vip_nodes.at("reset_l")->show();
+      rootptr->draw=1;
+      return;
+    }
     if (rootptr->winner == 0)
       if (rootptr->ownership[i] == 0) {
         rootptr->ownership[i] = rootptr->player;
@@ -168,7 +177,6 @@ void initialize_gomoku(fw::context_t *ctx) {
       rootptr->wins[rootptr->winner - 1]++;
       s->vip_nodes.at("end_screen")->show();
       s->vip_nodes.at("player_won")->show();
-      s->vip_nodes.at("reset")->show();
       s->vip_nodes.at("reset_l")->show();
       dynamic_cast<fw::basic_node_t<sf::Text> *>(s->vip_nodes.at("player_won"))
           ->shape()
@@ -184,12 +192,8 @@ void initialize_gomoku(fw::context_t *ctx) {
     }
   };
 
-  s.event_cb_map[sf::Event::MouseButtonReleased] = [interact,
-                                                    find_button_nr](auto *s) {
-    // PROBLEM NR. 2
-    // ZAWOLANIE sf::Mouse::getPosition() bez parametru, powoduje
-    // ze pozycja myszki jest zczytywana wzgledem lewego gornego rogu MONITORA,
-    // nie okna :)
+  s.event_cb_map[sf::Event::MouseButtonReleased] = [interact, find_button_nr
+                                                    ](auto *s) {
     interact(find_button_nr(sf::Mouse::getPosition(*s->window)));
   };
 
@@ -198,18 +202,6 @@ void initialize_gomoku(fw::context_t *ctx) {
     s.root->attach(std::unique_ptr<fw::node_t>{ptr});
     ptr->shape()->setPosition(sf::Vector2f{x, y});
     ptr->shape()->setTexture(s.texture.get(t));
-    if (i.size())
-      s.vip_nodes.emplace(i, ptr);
-    return ptr;
-  };
-
-  auto create_button_rec = [&s](float x, float y, sf::Vector2f size,
-                                std::string i) {
-    auto ptr = new fw::button_t<sf::RectangleShape>{};
-    s.root->attach(std::unique_ptr<fw::node_t>{ptr});
-    ptr->shape()->setPosition(sf::Vector2f{x, y});
-    ptr->shape()->setSize(sf::Vector2f{size.x, size.y});
-    ptr->shape()->setFillColor(sf::Color::Black);
     if (i.size())
       s.vip_nodes.emplace(i, ptr);
     return ptr;
@@ -252,19 +244,21 @@ void initialize_gomoku(fw::context_t *ctx) {
   create_label("Player _ won!", "player_won");
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("player_won"))
       ->shape()
-      ->setPosition(770, 400);
+      ->setPosition(700, 400);
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("player_won"))
       ->hide();
 
-  auto reset_ptr = create_button_rec(890, 500, {200, 70}, "reset");
-  reset_ptr->hide();
-  reset_ptr->add_click_cb(reset);
+  create_label("Game endend in a draw!", "draw");
+  dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("draw"))
+      ->shape()
+      ->setPosition(600, 400);
+  dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("draw"))->hide();
 
-  create_label("Reset", "reset_l");
+  create_label("Press anywhere to reset...", "reset_l");
   s.vip_nodes.at("reset_l")->hide();
   dynamic_cast<fw::basic_node_t<sf::Text> *>(s.vip_nodes.at("reset_l"))
       ->shape()
-      ->setPosition(900, 500);
+      ->setPosition(570, 500);
 
   ctx->scene_map.emplace(std::move(sn), std::move(s));
 }
