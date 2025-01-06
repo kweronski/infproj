@@ -2,6 +2,7 @@
 #include "decrypt.hpp"
 #include "rps.hpp"
 #include "gomoku.hpp"
+#include "ttt.hpp"
 #include <iostream>
 
 namespace cf {

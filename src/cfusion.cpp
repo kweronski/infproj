@@ -15,6 +15,7 @@ void initialize(fw::context_t *ctx, const char *wdir) {
   initialize_decrypt(ctx);
   initialize_rps(ctx);
   initialize_gomoku(ctx);
+  initialize_ttt(ctx);
 }
 
 struct slider_t {
