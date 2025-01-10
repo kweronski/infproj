@@ -8,29 +8,32 @@
 <font id="Digital7" src="./font/digital-7.ttf"/>
 <font id="SophieMono" src="./font/SophieMonoSerif.ttf"/>
 
+<nreg id="smb1_offset" value="0.1 * __n:window_height" />
+
 <root>
 	<nreg id="cursor_mm" value="5"/>
 
 	<button type="sprite" id="rps_start_button">
-		<position x="0.1 * __n:window_height" y="0.1 * __n:window_height"/>
+		<position x="__n:smb1_offset + 200" y="__n:smb1_offset"/>
 		<fill_texture id="logo_rps"/>
 		<scale x="0.5" y="0.5"/>
 	</button>
 
 	<button type="sprite" id="decrypt_start_button">
-		<position x="0.1 * __n:window_height + 300" y="0.1 * __n:window_height"/>
+
+		<position x="__n:smb1_offset + 200" y="__n:smb1_offset + 550"/>
 		<fill_texture id="logo_decrypt"/>
 		<scale x="0.5" y="0.5"/>
 	</button>
 
 	<button type="sprite" id="gomoku_start_button">
-		<position x="0.1 * __n:window_height + 600" y="0.1 * __n:window_height"/>
+		<position x="__n:smb1_offset + 1200" y="__n:smb1_offset"/>
 		<fill_texture id="logo_gomoku"/>
 		<scale x="0.5" y="0.5"/>
 	</button>
 
 	<button type="sprite" id="ttt_start_button">
-		<position x="0.1 * __n:window_height + 900" y="0.1 * __n:window_height"/>
+		<position x="__n:smb1_offset + 1200" y="__n:smb1_offset + 500"/>
 		<fill_texture id="logo_ttt"/>
 		<scale x="0.5" y="0.5"/>
 	</button>

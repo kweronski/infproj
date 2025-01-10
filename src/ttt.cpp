@@ -77,8 +77,6 @@ void initialize_ttt(fw::context_t *ctx) {
   ctx->scene_map.emplace(scene_id, fw::create_scene_skeleton(ctx));
   auto s = &ctx->scene_map.at(scene_id);
 
-  s->texture.load("x_logo", "./img/ttt_x.png");
-  s->texture.load("o_logo", "./img/ttt_o.png");
   s->texture.load("board_logo", "./img/ttt_board.png");
   s->font.load("Digital7", "./font/digital-7.ttf");
   s->font.load("AnonymousPro", "./font/AnonymousPro-Regular.ttf");
