@@ -10,8 +10,8 @@ find_package(SFML COMPONENTS system graphics network audio window REQUIRED)
 find_package(PugiXML REQUIRED)
 
 # Expand the search path for custom standard lib versions
-set(CMAKE_INSTALL_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
-set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64")
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:/usr/local/lib64:/usr/local/lib")
+set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:/usr/local/lib64:/usr/local/lib")
 
 add_library(framework
 	button_builder.cpp
