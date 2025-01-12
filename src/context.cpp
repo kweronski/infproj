@@ -122,7 +122,8 @@ void create_window_from_registers(context_t *ctx) {
     sf::VideoMode m{nreg->get_value<unsigned>("window_width"),
                     nreg->get_value<unsigned>("window_height")};
 
-    ctx->window.create(m, t);
+    ctx->window.create(m, t, sf::Style::None);
+    ctx->window.setPosition({0,0});
   } catch (...) {
     std::cerr << "Failed to fetch window parameters!" << std::endl;
     throw;
