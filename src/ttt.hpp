@@ -14,9 +14,15 @@ struct ttt_t : public ::fw::node_t {
 
   using position_t = std::pair<std::size_t, std::size_t>; // aliasy
   using win_pattern_t = std::vector<position_t>;
-
   static std::vector<win_pattern_t> victory_db;
   static bool is_victory(std::vector<std::vector<char>> *, char);
+
+  using block_pattern_t = std::vector<position_t>;
+  static std::vector<block_pattern_t> block_db;
+  static bool is_need_to_block_move(std::vector<std::vector<char>> *,
+                                    char opponent_id,
+                                    cf::ttt_t::position_t * = nullptr,
+                                    char empty_id = 0);
 };
 
 void initialize_ttt(::fw::context_t *);

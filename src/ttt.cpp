@@ -64,11 +64,11 @@ bool is_position_available(std::vector<std::vector<char>> *board,
 
 bool is_board_full(std::vector<std::vector<char>> *, char empty_id = 0);
 std::pair<std::size_t, std::size_t>
-pick_ai_position(std::vector<std::vector<char>> *, char empty_id = 0);
+pick_ai_position(std::vector<std::vector<char>> *, char opponent_id,
+                 char empty_id = 0);
 void make_ai_move(fw::scene_t *s);
 
 void create_game_over_menu(fw::scene_t *s, std::string message);
-
 } // namespace
 
 namespace cf {
@@ -264,11 +264,15 @@ bool is_board_full(std::vector<std::vector<char>> *board, char empty_id) {
 }
 
 std::pair<std::size_t, std::size_t>
-pick_ai_position(std::vector<std::vector<char>> *board, char empty_id) {
+pick_ai_position(std::vector<std::vector<char>> *board, char opponent_id,
+                 char empty_id) {
   if (is_board_full(board, empty_id))
     throw std::runtime_error{"pick_ai_position: TicTacToe board is full!"};
-
-  auto position = generate_ai_position(board->size());
+  // Detect if there is a need to block three in row
+  cf::ttt_t::position_t position{};
+  if (cf::ttt_t::is_need_to_block_move(board, opponent_id, &position, empty_id))
+    return position;
+  position = generate_ai_position(board->size());
   while (!is_position_available(board, position, empty_id))
     position = generate_ai_position(board->size());
   return position;
@@ -276,7 +280,8 @@ pick_ai_position(std::vector<std::vector<char>> *board, char empty_id) {
 
 void make_ai_move(fw::scene_t *s) {
   auto tttptr = dynamic_cast<cf::ttt_t *>(s->root.get()); // wylowienie typu
-  auto p{pick_ai_position(&tttptr->board, tttptr->empty_id)};
+  auto p{pick_ai_position(&tttptr->board, tttptr->player_move_id,
+                          tttptr->empty_id)};
 
   if (is_position_available(&tttptr->board, {1, 1}, tttptr->empty_id))
     p = {1, 1};
@@ -362,6 +367,23 @@ bool cf::ttt_t::is_victory(std::vector<std::vector<char>> *board, char id) {
   return false;
 }
 
+bool cf::ttt_t::is_need_to_block_move(std::vector<std::vector<char>> *board,
+                                      char opponent_id,
+                                      cf::ttt_t::position_t *position,
+                                      char empty_id) {
+  for (const auto &pat : block_db)
+    if (is_position_available(board, pat[0], opponent_id) &&
+        is_position_available(board, pat[1], opponent_id) &&
+        is_position_available(board, pat[2], empty_id)) {
+      if (position) {
+        *position = pat[2];
+      }
+      return true;
+    }
+
+  return false;
+}
+
 std::vector<cf::ttt_t::win_pattern_t> cf::ttt_t::victory_db{
     // wiersze
     {{0, 0}, {0, 1}, {0, 2}},
@@ -375,3 +397,40 @@ std::vector<cf::ttt_t::win_pattern_t> cf::ttt_t::victory_db{
     {{0, 0}, {1, 1}, {2, 2}},
     // skos2
     {{0, 2}, {1, 1}, {2, 0}}};
+
+std::vector<cf::ttt_t::block_pattern_t> cf::ttt_t::block_db{
+    // wiersze
+    {{0, 0}, {0, 1}, {0, 2}},
+    {{0, 0}, {0, 2}, {0, 1}},
+    {{0, 2}, {0, 1}, {0, 0}},
+
+    {{1, 0}, {1, 1}, {1, 2}},
+    {{1, 0}, {1, 2}, {1, 1}},
+    {{1, 2}, {1, 1}, {1, 0}},
+
+    {{2, 0}, {2, 1}, {2, 2}},
+    {{2, 0}, {2, 2}, {2, 1}},
+    {{2, 2}, {2, 1}, {2, 0}},
+
+    // kolumny
+    {{0, 0}, {1, 0}, {2, 0}},
+    {{0, 0}, {2, 0}, {1, 0}},
+    {{2, 0}, {1, 0}, {0, 0}},
+
+    {{0, 1}, {1, 1}, {2, 1}},
+    {{0, 1}, {2, 1}, {1, 1}},
+    {{2, 1}, {1, 1}, {0, 1}},
+
+    {{0, 2}, {1, 2}, {2, 2}},
+    {{0, 2}, {2, 2}, {1, 2}},
+    {{2, 2}, {1, 2}, {0, 2}},
+
+    // skos1
+    {{0, 0}, {1, 1}, {2, 2}},
+    {{0, 0}, {2, 2}, {1, 1}},
+    {{2, 2}, {1, 1}, {0, 0}},
+
+    // skos2
+    {{0, 2}, {1, 1}, {2, 0}},
+    {{2, 0}, {1, 1}, {0, 2}},
+    {{1, 1}, {1, 1}, {2, 2}}};
