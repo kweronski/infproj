@@ -21,7 +21,7 @@ public:
   node_t &operator=(const node_t &) = delete;
   node_t(node_t &&) = default;
   node_t &operator=(node_t &&) = default;
-  ~node_t() = default;
+  virtual ~node_t() = default;
 
   void draw(sf::RenderTarget &, sf::RenderStates) const override final;
   virtual void draw_current(sf::RenderTarget &, sf::RenderStates) const;
